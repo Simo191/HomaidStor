@@ -1,19 +1,17 @@
 ### Homaid Store — Tests d'API
 ### Ouvre ce fichier dans VS Code avec l'extension "REST Client" (humao.rest-client)
-### Clique sur "Send Request" au-dessus de chaque bloc.
 
 @baseUrl = http://localhost:5080
 @adminEmail = admin@homaid.local
 @adminPassword = ChangeMe!2026
 
 ############################################
-# 1. Health check
+# Health
 ############################################
 GET {{baseUrl}}/api/health
 
 ############################################
-# 2. Login admin (utilise le compte seedé)
-# Conserve le token via @name pour l'utiliser dans les requêtes suivantes.
+# AUTH
 ############################################
 # @name loginAdmin
 POST {{baseUrl}}/api/auth/admin/login
@@ -25,12 +23,9 @@ Content-Type: application/json
 }
 
 ###
-@adminAccessToken = {{loginAdmin.response.body.data.accessToken}}
-@adminRefreshToken = {{loginAdmin.response.body.data.refreshToken}}
+@adminToken = {{loginAdmin.response.body.data.accessToken}}
 
-############################################
-# 3. Inscription nouveau client
-############################################
+###
 # @name registerCustomer
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
@@ -45,76 +40,229 @@ Content-Type: application/json
 }
 
 ###
-@customerAccessToken = {{registerCustomer.response.body.data.accessToken}}
-@customerRefreshToken = {{registerCustomer.response.body.data.refreshToken}}
+@customerToken = {{registerCustomer.response.body.data.accessToken}}
+@customerRefresh = {{registerCustomer.response.body.data.refreshToken}}
 
-############################################
-# 4. Login client
-############################################
+###
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
-{
-  "email": "client.test@homaid.local",
-  "password": "MotDePasse123!"
-}
+{ "email": "client.test@homaid.local", "password": "MotDePasse123!" }
 
-############################################
-# 5. Refresh token (rotation — l'ancien refresh devient invalide)
-############################################
+###
 POST {{baseUrl}}/api/auth/refresh
 Content-Type: application/json
 
-{
-  "refreshToken": "{{customerRefreshToken}}"
-}
+{ "refreshToken": "{{customerRefresh}}" }
 
 ############################################
-# 6. Logout (révoque le refresh token)
+# CATALOGUE PUBLIC — pas d'authentification requise
 ############################################
-POST {{baseUrl}}/api/auth/logout
-Authorization: Bearer {{customerAccessToken}}
+
+### Arborescence des catégories (langue par défaut: fr)
+GET {{baseUrl}}/api/catalog/categories
+
+### Catégories à plat en arabe
+GET {{baseUrl}}/api/catalog/categories?flat=true&lang=ar
+
+### Catégories en anglais
+GET {{baseUrl}}/api/catalog/categories?lang=en
+
+### Détail d'une catégorie
+GET {{baseUrl}}/api/catalog/categories/electronique?lang=fr
+
+### Marques
+GET {{baseUrl}}/api/catalog/brands
+
+### Tous les produits, page 1
+GET {{baseUrl}}/api/catalog/products?page=1&pageSize=10&lang=fr
+
+### Produits par catégorie
+GET {{baseUrl}}/api/catalog/products?categorySlug=electronique&lang=fr
+
+### Produits par marque + tri prix croissant
+GET {{baseUrl}}/api/catalog/products?brandSlug=apple&sortBy=price_asc
+
+### Recherche full-text
+GET {{baseUrl}}/api/catalog/products?search=galaxy
+
+### Filtres combinés : électro, en stock, < 15000, triés par prix
+GET {{baseUrl}}/api/catalog/products?categorySlug=electronique&inStockOnly=true&maxPrice=15000&sortBy=price_asc
+
+### Produits mis en avant (homepage)
+GET {{baseUrl}}/api/catalog/products/featured?take=6&lang=fr
+
+### Détail produit en arabe
+GET {{baseUrl}}/api/catalog/products/iphone-15-pro?lang=ar
+
+### Détail produit en anglais (incrémente aussi le viewCount)
+GET {{baseUrl}}/api/catalog/products/galaxy-s24?lang=en
+
+############################################
+# ADMIN — CATÉGORIES (token admin requis)
+############################################
+
+### Liste paginée
+GET {{baseUrl}}/api/admin/categories?page=1&pageSize=20
+Authorization: Bearer {{adminToken}}
+
+### Recherche
+GET {{baseUrl}}/api/admin/categories?search=elec
+Authorization: Bearer {{adminToken}}
+
+### Créer une catégorie
+# @name createCategory
+POST {{baseUrl}}/api/admin/categories
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "refreshToken": "{{customerRefreshToken}}"
+  "slug": "sport-outdoor",
+  "parentId": null,
+  "sortOrder": 10,
+  "imageUrl": null,
+  "isActive": true,
+  "translations": [
+    { "languageCode": "fr", "name": "Sport & Outdoor", "description": "Articles sportifs et plein air" },
+    { "languageCode": "ar", "name": "رياضة وأنشطة خارجية", "description": "منتجات رياضية" },
+    { "languageCode": "en", "name": "Sport & Outdoor", "description": "Sport and outdoor gear" }
+  ]
 }
 
-############################################
-# 7. Cas d'erreur : email déjà utilisé → 409
-############################################
-POST {{baseUrl}}/api/auth/register
+###
+@newCategoryId = {{createCategory.response.body.data.id}}
+
+### Mettre à jour la catégorie
+PUT {{baseUrl}}/api/admin/categories/{{newCategoryId}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "email": "client.test@homaid.local",
-  "phone": "+212600000000",
-  "firstName": "Autre",
-  "lastName": "Personne",
-  "password": "AutrePass123!"
+  "slug": "sport-outdoor",
+  "parentId": null,
+  "sortOrder": 5,
+  "imageUrl": "https://picsum.photos/seed/sport/400/400",
+  "isActive": true,
+  "translations": [
+    { "languageCode": "fr", "name": "Sport & Plein Air", "description": "Sport et activités outdoor" },
+    { "languageCode": "ar", "name": "رياضة وأنشطة خارجية", "description": "منتجات رياضية" },
+    { "languageCode": "en", "name": "Sport & Outdoor", "description": "Sport and outdoor gear" }
+  ]
 }
 
+### Supprimer la catégorie de test
+DELETE {{baseUrl}}/api/admin/categories/{{newCategoryId}}
+Authorization: Bearer {{adminToken}}
+
 ############################################
-# 8. Cas d'erreur : mauvais mot de passe admin → 401
+# ADMIN — MARQUES
 ############################################
-POST {{baseUrl}}/api/auth/admin/login
+
+GET {{baseUrl}}/api/admin/brands
+Authorization: Bearer {{adminToken}}
+
+### Créer une marque
+# @name createBrand
+POST {{baseUrl}}/api/admin/brands
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "email": "{{adminEmail}}",
-  "password": "MAUVAIS"
+  "name": "Xiaomi",
+  "slug": "xiaomi",
+  "logoUrl": "https://picsum.photos/seed/xiaomi/200/100",
+  "description": "Marque chinoise d'électronique",
+  "isActive": true
 }
 
+###
+@newBrandId = {{createBrand.response.body.data.id}}
+
+### Supprimer la marque
+DELETE {{baseUrl}}/api/admin/brands/{{newBrandId}}
+Authorization: Bearer {{adminToken}}
+
 ############################################
-# 9. Cas d'erreur : mot de passe trop court → 400
+# ADMIN — PRODUITS
 ############################################
-POST {{baseUrl}}/api/auth/register
+
+### Liste admin (inclut les inactifs)
+GET {{baseUrl}}/api/admin/products?page=1&pageSize=20
+Authorization: Bearer {{adminToken}}
+
+### Recherche admin
+GET {{baseUrl}}/api/admin/products?search=iphone
+Authorization: Bearer {{adminToken}}
+
+### Créer un produit (récupère d'abord une catégorie + une marque)
+# @name listCategoriesAdmin
+GET {{baseUrl}}/api/admin/categories?search=alimentation
+Authorization: Bearer {{adminToken}}
+
+###
+@alimCatId = {{listCategoriesAdmin.response.body.data.items[0].id}}
+
+###
+# @name createProduct
+POST {{baseUrl}}/api/admin/products
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "email": "short@test.ma",
-  "phone": "+212600",
-  "firstName": "A",
-  "lastName": "B",
-  "password": "abc"
+  "sku": "ALI-001",
+  "slug": "huile-olive-extra-vierge",
+  "categoryId": "{{alimCatId}}",
+  "brandId": null,
+  "basePrice": 89.90,
+  "compareAtPrice": 109.00,
+  "currency": "MAD",
+  "stockQuantity": 50,
+  "lowStockThreshold": 10,
+  "weightKg": 1.0,
+  "barcode": "6111234567890",
+  "attributes": { "origine": "Meknès", "contenance_l": 1, "bio": true },
+  "isActive": true,
+  "isFeatured": false,
+  "publishedAt": null,
+  "translations": [
+    { "languageCode": "fr", "name": "Huile d'olive extra vierge 1L",
+      "shortDescription": "Huile pressée à froid, origine Meknès",
+      "description": "Notre huile d'olive extra vierge est produite localement..." },
+    { "languageCode": "ar", "name": "زيت زيتون بكر ممتاز 1 لتر",
+      "shortDescription": "زيت معصور على البارد، من مكناس" },
+    { "languageCode": "en", "name": "Extra virgin olive oil 1L",
+      "shortDescription": "Cold-pressed, from Meknès" }
+  ],
+  "images": [
+    { "url": "https://picsum.photos/seed/oil1/600/600", "altText": "Bouteille", "sortOrder": 0, "isPrimary": true },
+    { "url": "https://picsum.photos/seed/oil2/600/600", "altText": "Détail", "sortOrder": 1, "isPrimary": false }
+  ]
 }
+
+###
+@newProductId = {{createProduct.response.body.data.id}}
+
+### Activer/désactiver un produit
+PATCH {{baseUrl}}/api/admin/products/{{newProductId}}/active
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "isActive": false }
+
+### Ajuster le stock (+20 unités)
+POST {{baseUrl}}/api/admin/products/{{newProductId}}/stock-adjustment
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "delta": 20, "reason": "Réception fournisseur lot #2026-05" }
+
+### Diminuer le stock (-5 unités, perte/casse)
+POST {{baseUrl}}/api/admin/products/{{newProductId}}/stock-adjustment
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "delta": -5, "reason": "Casse en entrepôt" }
+
+### Supprimer le produit de test
+DELETE {{baseUrl}}/api/admin/products/{{newProductId}}
+Authorization: Bearer {{adminToken}}

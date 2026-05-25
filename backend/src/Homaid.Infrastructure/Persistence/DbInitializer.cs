@@ -20,7 +20,9 @@ public static class DbInitializer
         await SeedAdminAsync(db, config, logger, ct);
         await SeedShippingZonesAsync(db, ct);
         await SeedCategoriesAsync(db, ct);
+        await db.SaveChangesAsync(ct);
 
+        await SeedBrandsAndProductsAsync(db, ct);
         await db.SaveChangesAsync(ct);
     }
 
@@ -101,5 +103,72 @@ public static class DbInitializer
             Make("alimentation", 3, ("Alimentation","أغذية",     "Groceries")),
             Make("beaute",       4, ("Beauté",     "تجميل",     "Beauty"))
         );
+    }
+
+    private static async Task SeedBrandsAndProductsAsync(HomaidDbContext db, CancellationToken ct)
+    {
+        if (await db.Products.AnyAsync(ct)) return;
+
+        var samsung = new Brand { Name = "Samsung", Slug = "samsung", IsActive = true };
+        var apple   = new Brand { Name = "Apple",   Slug = "apple",   IsActive = true };
+        var nike    = new Brand { Name = "Nike",    Slug = "nike",    IsActive = true };
+        db.Brands.AddRange(samsung, apple, nike);
+
+        var electro = await db.Categories.FirstAsync(c => c.Slug == "electronique", ct);
+        var vetements = await db.Categories.FirstAsync(c => c.Slug == "vetements", ct);
+        var maison = await db.Categories.FirstAsync(c => c.Slug == "maison", ct);
+
+        Product Make(string sku, string slug, Guid categoryId, Brand? brand, decimal price, int stock, bool featured,
+                     (string fr, string ar, string en) name, (string fr, string ar, string en)? shortDesc = null)
+        {
+            var p = new Product
+            {
+                Sku = sku,
+                Slug = slug,
+                CategoryId = categoryId,
+                BrandId = brand?.Id,
+                Brand = brand,
+                BasePrice = price,
+                Currency = "MAD",
+                StockQuantity = stock,
+                LowStockThreshold = 5,
+                IsActive = true,
+                IsFeatured = featured,
+                PublishedAt = DateTime.UtcNow
+            };
+            p.Translations.Add(new ProductTranslation { LanguageCode = "fr", Name = name.fr, ShortDescription = shortDesc?.fr });
+            p.Translations.Add(new ProductTranslation { LanguageCode = "ar", Name = name.ar, ShortDescription = shortDesc?.ar });
+            p.Translations.Add(new ProductTranslation { LanguageCode = "en", Name = name.en, ShortDescription = shortDesc?.en });
+            p.Images.Add(new ProductImage { Url = $"https://picsum.photos/seed/{slug}/600/600", AltText = name.fr, IsPrimary = true, SortOrder = 0 });
+            return p;
+        }
+
+        db.Products.AddRange(
+            Make("ELEC-001", "iphone-15-pro", electro.Id, apple, 12999m, 8, true,
+                ("iPhone 15 Pro", "آيفون 15 برو", "iPhone 15 Pro"),
+                ("Smartphone Apple haut de gamme", "هاتف ذكي راقي من آبل", "Premium Apple smartphone")),
+
+            Make("ELEC-002", "galaxy-s24", electro.Id, samsung, 9999m, 12, true,
+                ("Samsung Galaxy S24", "سامسونغ غالاكسي S24", "Samsung Galaxy S24"),
+                ("Smartphone Android performant", "هاتف أندرويد قوي", "Powerful Android smartphone")),
+
+            Make("ELEC-003", "macbook-air-m3", electro.Id, apple, 18500m, 4, false,
+                ("MacBook Air M3", "ماك بوك إير M3", "MacBook Air M3"),
+                ("Ordinateur portable ultra fin", "حاسوب محمول رفيع", "Ultra-thin laptop")),
+
+            Make("VET-001", "nike-air-max", vetements.Id, nike, 1299m, 25, true,
+                ("Nike Air Max", "نايكي إير ماكس", "Nike Air Max"),
+                ("Chaussures de sport iconiques", "أحذية رياضية أيقونية", "Iconic sports shoes")),
+
+            Make("VET-002", "tshirt-coton-bio", vetements.Id, null, 199m, 100, false,
+                ("T-shirt coton bio", "قميص قطن عضوي", "Organic cotton t-shirt"),
+                ("100% coton biologique", "قطن عضوي 100%", "100% organic cotton")),
+
+            Make("MAI-001", "lampe-design-led", maison.Id, null, 449m, 15, true,
+                ("Lampe design LED", "مصباح LED تصميم", "LED design lamp"),
+                ("Éclairage moderne pour salon", "إضاءة عصرية لغرفة المعيشة", "Modern living-room lighting"))
+        );
+
+        await Task.CompletedTask;
     }
 }

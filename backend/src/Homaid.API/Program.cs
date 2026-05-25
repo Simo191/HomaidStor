@@ -18,6 +18,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHomaidAuth(builder.Configuration);
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<Homaid.Application.Interfaces.ILanguageProvider, Homaid.API.Services.LanguageProvider>();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(opt =>
