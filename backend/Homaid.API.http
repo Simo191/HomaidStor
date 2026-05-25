@@ -1,0 +1,120 @@
+### Homaid Store — Tests d'API
+### Ouvre ce fichier dans VS Code avec l'extension "REST Client" (humao.rest-client)
+### Clique sur "Send Request" au-dessus de chaque bloc.
+
+@baseUrl = http://localhost:5080
+@adminEmail = admin@homaid.local
+@adminPassword = ChangeMe!2026
+
+############################################
+# 1. Health check
+############################################
+GET {{baseUrl}}/api/health
+
+############################################
+# 2. Login admin (utilise le compte seedé)
+# Conserve le token via @name pour l'utiliser dans les requêtes suivantes.
+############################################
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/admin/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+###
+@adminAccessToken = {{loginAdmin.response.body.data.accessToken}}
+@adminRefreshToken = {{loginAdmin.response.body.data.refreshToken}}
+
+############################################
+# 3. Inscription nouveau client
+############################################
+# @name registerCustomer
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "client.test@homaid.local",
+  "phone": "+212600112233",
+  "firstName": "Karim",
+  "lastName": "Benali",
+  "password": "MotDePasse123!",
+  "preferredLanguage": "fr"
+}
+
+###
+@customerAccessToken = {{registerCustomer.response.body.data.accessToken}}
+@customerRefreshToken = {{registerCustomer.response.body.data.refreshToken}}
+
+############################################
+# 4. Login client
+############################################
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "client.test@homaid.local",
+  "password": "MotDePasse123!"
+}
+
+############################################
+# 5. Refresh token (rotation — l'ancien refresh devient invalide)
+############################################
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{customerRefreshToken}}"
+}
+
+############################################
+# 6. Logout (révoque le refresh token)
+############################################
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{customerAccessToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{customerRefreshToken}}"
+}
+
+############################################
+# 7. Cas d'erreur : email déjà utilisé → 409
+############################################
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "client.test@homaid.local",
+  "phone": "+212600000000",
+  "firstName": "Autre",
+  "lastName": "Personne",
+  "password": "AutrePass123!"
+}
+
+############################################
+# 8. Cas d'erreur : mauvais mot de passe admin → 401
+############################################
+POST {{baseUrl}}/api/auth/admin/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "MAUVAIS"
+}
+
+############################################
+# 9. Cas d'erreur : mot de passe trop court → 400
+############################################
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "short@test.ma",
+  "phone": "+212600",
+  "firstName": "A",
+  "lastName": "B",
+  "password": "abc"
+}
