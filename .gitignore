@@ -1,0 +1,55 @@
+# ===== .NET =====
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+*.pidb
+*.svclog
+*.scc
+
+# ===== Node / Angular =====
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+.nx/
+*.tsbuildinfo
+
+# ===== OS / IDE =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/
+*.iml
+
+# ===== Secrets =====
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Production.json
+.env
+.env.*
+!.env.example
+**/secrets.json
+
+# ===== Tests / Coverage =====
+[Tt]est[Rr]esult*/
+coverage/
+*.coverage
+*.coveragexml
+
+# ===== Misc =====
+*.log
+*.bak
+*.tmp
+publish/
