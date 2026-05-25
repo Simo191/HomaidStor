@@ -1,3 +1,5 @@
+using Homaid.Application.Interfaces.Auth;
+using Homaid.Infrastructure.Identity;
 using Homaid.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +20,10 @@ public static class DependencyInjection
                 npg.MigrationsAssembly(typeof(HomaidDbContext).Assembly.GetName().Name);
                 npg.EnableRetryOnFailure(maxRetryCount: 3);
             }));
+
+        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }
