@@ -1,0 +1,208 @@
+### Homaid Store — Commandes / Checkout / Admin Orders
+@baseUrl = http://localhost:5080
+
+############################################
+# Pré-requis : récupérer une méthode de livraison et un produit
+############################################
+
+### Méthodes de livraison Maroc
+# @name shippingMA
+GET {{baseUrl}}/api/shipping/methods/by-country/MA
+
+### Méthodes de livraison France
+GET {{baseUrl}}/api/shipping/methods/by-country/FR
+
+### Récupère l'iPhone (pour ProductId)
+# @name iphone
+GET {{baseUrl}}/api/catalog/products/iphone-15-pro
+
+### Variables auto-extraites
+@shippingMaId = {{shippingMA.response.body.data[0].id}}
+@iphoneId = {{iphone.response.body.data.id}}
+
+############################################
+# Login admin pour les tests admin
+############################################
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/admin/login
+Content-Type: application/json
+
+{ "email": "admin@homaid.local", "password": "ChangeMe!2026" }
+
+###
+@adminToken = {{loginAdmin.response.body.data.accessToken}}
+
+############################################
+# CHECKOUT INVITÉ — cash à la livraison Maroc
+############################################
+# @name placeGuestMA
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "items": [
+    { "productId": "{{iphoneId}}", "quantity": 1 }
+  ],
+  "shippingAddress": {
+    "fullName": "Karim Benali",
+    "phone": "+212600112233",
+    "street": "123 Rue Mohammed V",
+    "city": "Casablanca",
+    "region": "Casa-Settat",
+    "postalCode": "20000",
+    "countryCode": "MA"
+  },
+  "shippingMethodId": "{{shippingMaId}}",
+  "customerNotes": "Sonner avant de monter",
+  "guestEmail": "karim@test.ma",
+  "guestPhone": "+212600112233",
+  "guestFirstName": "Karim",
+  "guestLastName": "Benali"
+}
+
+###
+@orderId = {{placeGuestMA.response.body.data.id}}
+
+############################################
+# CHECKOUT INTERNATIONAL — virement préalable
+############################################
+# @name shippingFR
+GET {{baseUrl}}/api/shipping/methods/by-country/FR
+
+###
+@shippingFrId = {{shippingFR.response.body.data[0].id}}
+
+###
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "items": [ { "productId": "{{iphoneId}}", "quantity": 1 } ],
+  "shippingAddress": {
+    "fullName": "Jean Dupont", "phone": "+33612345678",
+    "street": "10 rue de la Paix", "city": "Paris", "postalCode": "75002", "countryCode": "FR"
+  },
+  "shippingMethodId": "{{shippingFrId}}",
+  "guestEmail": "jean@dupont.fr", "guestPhone": "+33612345678",
+  "guestFirstName": "Jean", "guestLastName": "Dupont"
+}
+
+############################################
+# CHECKOUT CLIENT IDENTIFIÉ
+############################################
+# @name registerCustomer
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "client.test@homaid.local", "phone": "+212600999888",
+  "firstName": "Test", "lastName": "Client",
+  "password": "Pass1234!", "preferredLanguage": "fr"
+}
+
+###
+@customerToken = {{registerCustomer.response.body.data.accessToken}}
+
+### Commande avec token client (pas besoin de guest*)
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "items": [ { "productId": "{{iphoneId}}", "quantity": 1 } ],
+  "shippingAddress": {
+    "fullName": "Test Client", "phone": "+212600999888",
+    "street": "Avenue Hassan II", "city": "Rabat", "countryCode": "MA"
+  },
+  "shippingMethodId": "{{shippingMaId}}"
+}
+
+############################################
+# CLIENT — voir ses commandes
+############################################
+GET {{baseUrl}}/api/orders/mine
+Authorization: Bearer {{customerToken}}
+
+### Détail
+GET {{baseUrl}}/api/orders/mine/{{orderId}}
+Authorization: Bearer {{customerToken}}
+
+### Annuler sa propre commande
+POST {{baseUrl}}/api/orders/mine/{{orderId}}/cancel
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{ "reason": "J'ai change d'avis" }
+
+############################################
+# ADMIN — gestion des commandes
+############################################
+
+### Toutes les commandes
+GET {{baseUrl}}/api/admin/orders
+Authorization: Bearer {{adminToken}}
+
+### Filtres : status, paiement, date, recherche
+GET {{baseUrl}}/api/admin/orders?status=Pending&pageSize=10
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/api/admin/orders?paymentStatus=AwaitingTransfer
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/api/admin/orders?search=Karim
+Authorization: Bearer {{adminToken}}
+
+### Détail
+GET {{baseUrl}}/api/admin/orders/{{orderId}}
+Authorization: Bearer {{adminToken}}
+
+### Workflow Pending -> Confirmed
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "Confirmed", "notes": "Stock verifie" }
+
+### Confirmed -> Preparing
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "Preparing" }
+
+### Preparing -> Shipped
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "Shipped", "notes": "Expedie via DHL n=B0TRACK123" }
+
+### Shipped -> Delivered (cash : paiement marque Received auto)
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "Delivered", "notes": "Livre" }
+
+### Marquer paiement reçu (pour virement bancaire intl)
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/payment
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "paymentStatus": "Received", "reference": "VIR-2026-001234" }
+
+### Notes internes (visible admin uniquement)
+PATCH {{baseUrl}}/api/admin/orders/{{orderId}}/internal-notes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "internalNotes": "Client VIP, livraison prioritaire" }
+
+### Annulation admin (re-stock automatique si non expediee)
+POST {{baseUrl}}/api/admin/orders/{{orderId}}/cancel
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "reason": "Rupture imprevue de stock" }

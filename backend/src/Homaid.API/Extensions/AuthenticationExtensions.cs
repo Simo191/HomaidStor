@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Homaid.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,9 +16,12 @@ public static class AuthenticationExtensions
 
         var keyBytes = Encoding.UTF8.GetBytes(jwt.SigningKey);
 
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters

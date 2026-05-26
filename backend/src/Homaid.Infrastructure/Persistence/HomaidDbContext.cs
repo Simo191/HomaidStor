@@ -36,6 +36,16 @@ public class HomaidDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HomaidDbContext).Assembly);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(BaseEntity.Id))
+                    .ValueGeneratedNever();
+            }
+        }
     }
 
     public override int SaveChanges()
