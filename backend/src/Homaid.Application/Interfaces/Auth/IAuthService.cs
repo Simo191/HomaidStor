@@ -10,4 +10,7 @@ public interface IAuthService
     Task<Result<AuthResponse>> LoginAdminAsync(LoginRequest request, CancellationToken ct = default);
     Task<Result<AuthResponse>> RefreshAsync(RefreshTokenRequest request, CancellationToken ct = default);
     Task<Result> LogoutAsync(string refreshToken, CancellationToken ct = default);
+    Task<Result<AuthResponse>> LoginWithGoogleAsync(GoogleLoginRequest request, CancellationToken ct = default);
+    Task<Result<AuthResponse>> LoginWithFacebookAsync(FacebookLoginRequest request, CancellationToken ct = default);
+    Task<Result> ChangePasswordAsync(Guid customerId, ChangePasswordRequest request, CancellationToken ct = default);
 }

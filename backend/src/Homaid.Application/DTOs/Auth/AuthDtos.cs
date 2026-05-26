@@ -31,7 +31,14 @@ public record AuthenticatedUserDto(
     string PrincipalType,
     string PreferredLanguage);
 
-public record OAuthLoginRequest(
-    [Required] string Provider,
+public record GoogleLoginRequest(
     [Required] string IdToken,
-    string? Phone = null);
+    [StringLength(30)] string? Phone = null);
+
+public record FacebookLoginRequest(
+    [Required] string AccessToken,
+    [StringLength(30)] string? Phone = null);
+
+public record ChangePasswordRequest(
+    [Required] string CurrentPassword,
+    [Required, StringLength(100, MinimumLength = 8)] string NewPassword);

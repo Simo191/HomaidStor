@@ -1,0 +1,189 @@
+### Homaid Store — Customer profile, addresses, OAuth
+@baseUrl = http://localhost:5080
+
+############################################
+# Login (compte créé ailleurs ou inscription rapide)
+############################################
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "moi@homaid.local",
+  "phone": "+212600111222",
+  "firstName": "Karim",
+  "lastName": "Benali",
+  "password": "OldPass123!",
+  "preferredLanguage": "fr"
+}
+
+###
+@token = {{register.response.body.data.accessToken}}
+
+############################################
+# PROFIL
+############################################
+
+### Lire mon profil
+GET {{baseUrl}}/api/me
+Authorization: Bearer {{token}}
+
+### Mettre à jour mon profil
+PUT {{baseUrl}}/api/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Karim",
+  "lastName": "El Benali",
+  "phone": "+212600999999",
+  "preferredLanguage": "ar"
+}
+
+### Changer mon mot de passe (révoque tous mes refresh tokens)
+POST {{baseUrl}}/api/me/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "OldPass123!",
+  "newPassword": "NewPass456!"
+}
+
+### Mauvais mot de passe actuel → 401
+POST {{baseUrl}}/api/me/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "WRONG",
+  "newPassword": "Whatever1234!"
+}
+
+############################################
+# ADRESSES
+############################################
+
+### Lister mes adresses
+GET {{baseUrl}}/api/me/addresses
+Authorization: Bearer {{token}}
+
+### Ajouter une 1re adresse (devient default automatiquement)
+# @name addrCasa
+POST {{baseUrl}}/api/me/addresses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Karim Benali",
+  "phone": "+212600111000",
+  "street": "123 Rue Mohammed V",
+  "streetComplement": "Appt 4B",
+  "city": "Casablanca",
+  "region": "Casa-Settat",
+  "postalCode": "20000",
+  "countryCode": "MA",
+  "isDefault": false
+}
+
+###
+@addrCasaId = {{addrCasa.response.body.data.id}}
+
+### Ajouter une 2e adresse (France)
+# @name addrParis
+POST {{baseUrl}}/api/me/addresses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Karim B.",
+  "phone": "+33600000000",
+  "street": "42 Rue de Rivoli",
+  "city": "Paris",
+  "postalCode": "75001",
+  "countryCode": "FR",
+  "isDefault": false
+}
+
+###
+@addrParisId = {{addrParis.response.body.data.id}}
+
+### Récupérer une adresse précise
+GET {{baseUrl}}/api/me/addresses/{{addrCasaId}}
+Authorization: Bearer {{token}}
+
+### Modifier une adresse
+PUT {{baseUrl}}/api/me/addresses/{{addrCasaId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Karim Benali",
+  "phone": "+212600111000",
+  "street": "456 Boulevard Hassan II",
+  "city": "Casablanca",
+  "region": "Casa-Settat",
+  "postalCode": "20100",
+  "countryCode": "MA",
+  "isDefault": true
+}
+
+### Définir Paris comme adresse par défaut
+POST {{baseUrl}}/api/me/addresses/{{addrParisId}}/default
+Authorization: Bearer {{token}}
+
+### Supprimer Paris (le fallback default repassera sur Casa)
+DELETE {{baseUrl}}/api/me/addresses/{{addrParisId}}
+Authorization: Bearer {{token}}
+
+############################################
+# OAUTH GOOGLE / FACEBOOK
+############################################
+# Côté front (Angular) :
+# 1. Charger Google Identity Services / Facebook SDK
+# 2. L'utilisateur se connecte via le SDK
+# 3. Récupérer le idToken (Google) ou accessToken (Facebook)
+# 4. POST ci-dessous avec le token + un téléphone (premier login uniquement)
+#
+# Le serveur valide le token auprès de Google/Facebook,
+# crée le compte si nouveau (ou retrouve l'existant),
+# retourne un AuthResponse Homaid (JWT + refresh).
+
+### Récupérer la clé VAPID publique (pour Web Push côté navigateur)
+GET {{baseUrl}}/api/notifications/vapid-public-key
+
+### Login Google (nécessite OAuth:Google:ClientId configuré dans appsettings)
+POST {{baseUrl}}/api/auth/google
+Content-Type: application/json
+
+{
+  "idToken": "<idToken Google obtenu côté navigateur>",
+  "phone": "+212600111222"
+}
+
+### Login Facebook (nécessite OAuth:Facebook:AppId + AppSecret)
+POST {{baseUrl}}/api/auth/facebook
+Content-Type: application/json
+
+{
+  "accessToken": "<accessToken Facebook obtenu côté navigateur>",
+  "phone": "+212600111222"
+}
+
+############################################
+# ⚙️ Configuration OAuth (appsettings.Development.json)
+############################################
+# "OAuth": {
+#   "Google":   { "ClientId": "xxx.apps.googleusercontent.com" },
+#   "Facebook": { "AppId": "1234567890", "AppSecret": "..." }
+# }
+#
+# Côté Google Cloud Console :
+#  - Créer un OAuth 2.0 Client ID type "Web application"
+#  - Autoriser http://localhost:4200 dans les origines JS
+#  - Récupérer le ClientId
+#
+# Côté Facebook Developers :
+#  - Créer une App, ajouter le produit "Facebook Login"
+#  - Récupérer App ID + App Secret
+#  - Permissions: email (basique)

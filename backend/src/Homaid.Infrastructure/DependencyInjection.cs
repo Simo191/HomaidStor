@@ -1,11 +1,13 @@
 using Homaid.Application.Interfaces.Auth;
 using Homaid.Application.Interfaces.Catalog;
+using Homaid.Application.Interfaces.Customers;
 using Homaid.Application.Interfaces.Notifications;
 using Homaid.Application.Interfaces.Orders;
 using Homaid.Application.Interfaces.Shipping;
 using Homaid.Infrastructure.Identity;
 using Homaid.Infrastructure.Persistence;
 using Homaid.Infrastructure.Services.Catalog;
+using Homaid.Infrastructure.Services.Customers;
 using Homaid.Infrastructure.Services.Notifications;
 using Homaid.Infrastructure.Services.Orders;
 using Homaid.Infrastructure.Services.Shipping;
@@ -29,10 +31,15 @@ public static class DependencyInjection
             }));
 
         services.AddMemoryCache();
+        services.AddHttpClient();
 
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IExternalAuthService, ExternalAuthService>();
         services.AddScoped<IAuthService, AuthService>();
+
+        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<ICustomerAddressService, CustomerAddressService>();
 
         services.AddScoped<IPublicCatalogService, PublicCatalogService>();
         services.AddScoped<ICategoryAdminService, CategoryAdminService>();

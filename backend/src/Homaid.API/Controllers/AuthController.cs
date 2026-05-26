@@ -42,4 +42,14 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest req, CancellationToken ct)
         => (await _auth.LogoutAsync(req.RefreshToken, ct)).ToActionResult();
+
+    [HttpPost("google")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Google([FromBody] GoogleLoginRequest req, CancellationToken ct)
+        => (await _auth.LoginWithGoogleAsync(req, ct)).ToActionResult();
+
+    [HttpPost("facebook")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Facebook([FromBody] FacebookLoginRequest req, CancellationToken ct)
+        => (await _auth.LoginWithFacebookAsync(req, ct)).ToActionResult();
 }
