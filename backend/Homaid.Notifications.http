@@ -1,0 +1,141 @@
+### Homaid Store — Notifications (in-app, push, email)
+@baseUrl = http://localhost:5080
+
+############################################
+# Setup : login admin et client
+############################################
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/admin/login
+Content-Type: application/json
+
+{ "email": "admin@homaid.local", "password": "ChangeMe!2026" }
+
+###
+@adminToken = {{loginAdmin.response.body.data.accessToken}}
+
+###
+# @name registerCustomer
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "notif.client@homaid.local", "phone": "+212600111000",
+  "firstName": "Notif", "lastName": "Test",
+  "password": "Pass1234!"
+}
+
+###
+@customerToken = {{registerCustomer.response.body.data.accessToken}}
+
+############################################
+# CLÉ VAPID (pour s'abonner au push côté navigateur)
+############################################
+GET {{baseUrl}}/api/notifications/vapid-public-key
+
+############################################
+# CLIENT — Notifications in-app
+############################################
+
+### Liste
+GET {{baseUrl}}/api/me/notifications?page=1&pageSize=20
+Authorization: Bearer {{customerToken}}
+
+### Non lues uniquement
+GET {{baseUrl}}/api/me/notifications?unreadOnly=true
+Authorization: Bearer {{customerToken}}
+
+### Compteur non-lues (pour badge UI)
+GET {{baseUrl}}/api/me/notifications/unread-count
+Authorization: Bearer {{customerToken}}
+
+### Marquer une notification comme lue
+# Remplace {id} par un Id réel de la liste ci-dessus
+PATCH {{baseUrl}}/api/me/notifications/00000000-0000-0000-0000-000000000000/read
+Authorization: Bearer {{customerToken}}
+
+### Marquer toutes comme lues
+POST {{baseUrl}}/api/me/notifications/read-all
+Authorization: Bearer {{customerToken}}
+
+############################################
+# CLIENT — Abonnement push (Web Push API)
+############################################
+
+### Subscribe (les valeurs viennent normalement de PushSubscription.toJSON() côté JS)
+POST {{baseUrl}}/api/me/push-subscriptions
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/xxxxxxxx",
+  "p256dh": "BPSrUYz9oFmEyT9...",
+  "auth": "Z5RxhKQ..."
+}
+
+### Unsubscribe (par endpoint)
+DELETE {{baseUrl}}/api/me/push-subscriptions?endpoint=https://fcm.googleapis.com/fcm/send/xxxxxxxx
+Authorization: Bearer {{customerToken}}
+
+############################################
+# ADMIN — Notifications
+############################################
+
+### Liste
+GET {{baseUrl}}/api/admin/notifications
+Authorization: Bearer {{adminToken}}
+
+### Non lues seulement
+GET {{baseUrl}}/api/admin/notifications?unreadOnly=true
+Authorization: Bearer {{adminToken}}
+
+### Compteur
+GET {{baseUrl}}/api/admin/notifications/unread-count
+Authorization: Bearer {{adminToken}}
+
+### Marquer toutes lues
+POST {{baseUrl}}/api/admin/notifications/read-all
+Authorization: Bearer {{adminToken}}
+
+### Admin subscribe au push
+POST {{baseUrl}}/api/admin/push-subscriptions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/yyyy",
+  "p256dh": "AdminP256dh...",
+  "auth": "AdminAuth..."
+}
+
+############################################
+# DÉCLENCHER des notifications pour tester
+############################################
+
+### 1. Créer une commande -> notif admin OrderPlaced + notif client si auth
+# Voir Homaid.Orders.http (POST /api/orders)
+
+### 2. Changer le statut d'une commande -> notif client OrderConfirmed/Shipped/Delivered
+# PATCH /api/admin/orders/{id}/status
+
+### 3. Annuler une commande -> notif client + admin OrderCancelled
+# POST /api/admin/orders/{id}/cancel
+
+### 4. Ajustement stock -> notif admin LowStock si stock <= LowStockThreshold
+# POST /api/admin/products/{id}/stock-adjustment
+
+############################################
+# 📧 EMAIL en dev : désactivé par défaut
+############################################
+# Configure dans appsettings.Development.json:
+#   "Email": {
+#     "SmtpHost": "smtp.gmail.com",       (ou ton SMTP)
+#     "SmtpPort": 587,
+#     "Username": "ton.email@gmail.com",
+#     "Password": "app-password-google",  (créer un App Password si 2FA Gmail)
+#     "FromAddress": "noreply@homaid.ma",
+#     "FromName": "Homaid Store",
+#     "UseSsl": true
+#   }
+#
+# Si SmtpHost est vide, l'API logue "Email sending disabled" mais ne plante pas.
+# Les notifications in-app et push fonctionnent indépendamment.

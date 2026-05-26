@@ -2,6 +2,7 @@ using Homaid.Application.Common;
 using Homaid.Application.DTOs.Catalog;
 using Homaid.Application.Interfaces.Auth;
 using Homaid.Application.Interfaces.Catalog;
+using Homaid.Application.Interfaces.Notifications;
 using Homaid.Domain.Common;
 using Homaid.Domain.Entities;
 using Homaid.Domain.Enums;
@@ -16,12 +17,14 @@ public class ProductAdminService : IProductAdminService
     private readonly HomaidDbContext _db;
     private readonly IMemoryCache _cache;
     private readonly ICurrentUser _current;
+    private readonly INotificationService _notifications;
 
-    public ProductAdminService(HomaidDbContext db, IMemoryCache cache, ICurrentUser current)
+    public ProductAdminService(HomaidDbContext db, IMemoryCache cache, ICurrentUser current, INotificationService notifications)
     {
         _db = db;
         _cache = cache;
         _current = current;
+        _notifications = notifications;
     }
 
     public async Task<PagedResult<ProductListDto>> ListAsync(ProductListQuery q, bool includeInactive = true, CancellationToken ct = default)
@@ -268,6 +271,8 @@ public class ProductAdminService : IProductAdminService
         });
         await _db.SaveChangesAsync(ct);
         InvalidateCache();
+        if (after <= p.LowStockThreshold)
+            await _notifications.NotifyLowStockAsync(p.Id, after, ct);
         return Result.Success();
     }
 

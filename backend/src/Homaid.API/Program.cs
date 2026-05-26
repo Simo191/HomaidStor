@@ -81,6 +81,15 @@ if (app.Environment.IsDevelopment())
     {
         log.LogError(ex, "Database seed failed");
     }
+
+    var wpOpts = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<Homaid.Infrastructure.Services.Notifications.WebPushOptions>>().Value;
+    if (string.IsNullOrWhiteSpace(wpOpts.PublicKey) || string.IsNullOrWhiteSpace(wpOpts.PrivateKey))
+    {
+        var (pub, priv) = Homaid.Infrastructure.Services.Notifications.VapidKeyHelper.Generate();
+        log.LogWarning("===== VAPID keys not configured. GENERATED (dev only) — copy to appsettings.Development.json:\n  WebPush:PublicKey  = {Pub}\n  WebPush:PrivateKey = {Priv}", pub, priv);
+        wpOpts.PublicKey = pub;
+        wpOpts.PrivateKey = priv;
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

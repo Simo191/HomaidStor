@@ -2,6 +2,7 @@ using System.Data;
 using Homaid.Application.Common;
 using Homaid.Application.DTOs.Orders;
 using Homaid.Application.Interfaces.Auth;
+using Homaid.Application.Interfaces.Notifications;
 using Homaid.Application.Interfaces.Orders;
 using Homaid.Domain.Entities;
 using Homaid.Domain.Enums;
@@ -15,12 +16,14 @@ public class OrderService : IOrderService
     private readonly HomaidDbContext _db;
     private readonly IOrderNumberGenerator _numbers;
     private readonly ICurrentUser _current;
+    private readonly INotificationService _notifications;
 
-    public OrderService(HomaidDbContext db, IOrderNumberGenerator numbers, ICurrentUser current)
+    public OrderService(HomaidDbContext db, IOrderNumberGenerator numbers, ICurrentUser current, INotificationService notifications)
     {
         _db = db;
         _numbers = numbers;
         _current = current;
+        _notifications = notifications;
     }
 
     public async Task<Result<OrderDetailDto>> PlaceAsync(PlaceOrderRequest req, CancellationToken ct = default)
@@ -184,7 +187,8 @@ public class OrderService : IOrderService
             createdOrder = order;
         }
 
-        return await LoadDetailAsync(createdOrder!.Id, ct);
+        await _notifications.NotifyOrderPlacedAsync(createdOrder!.Id, ct);
+        return await LoadDetailAsync(createdOrder.Id, ct);
     }
 
     public async Task<PagedResult<OrderListDto>> ListMineAsync(Guid customerId, PageQuery page, CancellationToken ct = default)
@@ -291,6 +295,7 @@ public class OrderService : IOrderService
             ChangedBy = _current.Email ?? "admin"
         });
         await _db.SaveChangesAsync(ct);
+        await _notifications.NotifyOrderStatusChangedAsync(o.Id, req.Status, ct);
         return Result.Success(MapDetail(o));
     }
 
@@ -370,6 +375,7 @@ public class OrderService : IOrderService
 
             await _db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
+        await _notifications.NotifyOrderCancelledAsync(o.Id, reason, ct);
         return Result.Success();
     }
 
