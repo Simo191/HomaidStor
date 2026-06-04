@@ -12,12 +12,22 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 <div class="container my-5">
   <div class="row justify-content-center">
     <div class="col-lg-8">
-      <div class="text-center mb-4">
-        <i class="bi bi-check-circle-fill text-success" style="font-size:5rem"></i>
-        <h1 class="h2 mt-3">Merci pour votre commande !</h1>
-        <p class="lead text-muted">
+      <div class="text-center mb-5">
+        <div style="width:90px; height:90px; border-radius:50%; background:var(--velisse-rose-light); display:inline-flex; align-items:center; justify-content:center">
+          <i class="bi bi-check-lg" style="font-size:3.2rem; color:var(--velisse-rose-gold)"></i>
+        </div>
+        <div class="section-sub mt-3 mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.3em; font-size:.75rem; text-transform:uppercase; font-weight:500">
+          Commande confirmée
+        </div>
+        <h1 class="mb-2" style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:500">Merci pour votre commande !</h1>
+        <div class="d-inline-flex align-items-center gap-2 my-2" style="color:var(--velisse-rose-gold)">
+          <span style="width:30px; height:1px; background:var(--velisse-rose-gold)"></span>
+          <i class="bi bi-flower2" style="font-size:.7rem"></i>
+          <span style="width:30px; height:1px; background:var(--velisse-rose-gold)"></span>
+        </div>
+        <p class="lead" style="color:var(--velisse-muted)">
           @if (orderNumber()) {
-            Votre commande <strong class="text-primary">{{ orderNumber() }}</strong> a bien été enregistrée.
+            Votre commande <strong style="color:var(--velisse-rose-gold)">{{ orderNumber() }}</strong> a bien été enregistrée.
           } @else {
             Votre commande a bien été enregistrée.
           }

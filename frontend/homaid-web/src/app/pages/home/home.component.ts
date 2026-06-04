@@ -17,26 +17,28 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   <div class="container">
     <div class="row align-items-center">
       <div class="col-md-7">
-        <div class="section-sub mb-2" style="color:var(--homaid-primary)">NOUVELLE COLLECTION</div>
-        <h1 class="mb-3">
-          L'essentiel du<br>
-          <span style="color:var(--homaid-primary); font-style:italic">style marocain</span>
+        <div class="section-sub mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
+          Skincare · Beauty · Care
+        </div>
+        <h1 class="mb-3" style="color:var(--velisse-brown)">
+          La beauté<br>
+          <span style="color:var(--velisse-rose-gold); font-style:italic">venue de Corée</span>
         </h1>
-        <p class="lead mb-4">Découvrez une sélection raffinée de produits authentiques. Livraison rapide partout au Maroc, paiement à la livraison.</p>
+        <p class="lead mb-4">Parapharmacie &amp; Korean skincare : une sélection raffinée pour révéler l'éclat naturel de votre peau.</p>
         <div class="d-flex flex-wrap gap-3">
           <a routerLink="/catalog" class="btn btn-dark btn-lg btn-uppercase">
             Découvrir <i class="bi bi-arrow-right ms-2"></i>
           </a>
           <a [routerLink]="['/catalog']" [queryParams]="{ featured: 'true' }" class="btn btn-outline-dark btn-lg btn-uppercase">
-            Voir les promos
+            Coup de cœur
           </a>
         </div>
       </div>
       <div class="col-md-5 d-none d-md-block text-center">
         <div style="position:relative">
-          <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(233,30,99,.15) 0%, transparent 70%); border-radius:50%"></div>
-          <img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=600&q=80&fit=crop"
-               alt="Shopping" class="img-fluid" style="border-radius:8px; position:relative; max-height:420px; object-fit:cover">
+          <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(184,133,119,.18) 0%, transparent 70%); border-radius:50%"></div>
+          <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80&fit=crop"
+               alt="Korean skincare" class="img-fluid" style="border-radius:8px; position:relative; max-height:440px; object-fit:cover">
         </div>
       </div>
     </div>
@@ -76,7 +78,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   <div class="section-title">
     <div class="section-sub">Explorer</div>
     <h2>Nos catégories</h2>
-    <div class="section-line"></div>
+    <div class="section-line"><i class="bi bi-flower2"></i></div>
   </div>
   @if (loadingCategories()) {
     <div class="text-center"><div class="spinner-border" style="color:var(--homaid-primary)"></div></div>
@@ -101,7 +103,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   <div class="section-title">
     <div class="section-sub">Tendances</div>
     <h2>Coups de cœur</h2>
-    <div class="section-line"></div>
+    <div class="section-line"><i class="bi bi-flower2"></i></div>
   </div>
   @if (loadingFeatured()) {
     <div class="text-center"><div class="spinner-border" style="color:var(--homaid-primary)"></div></div>

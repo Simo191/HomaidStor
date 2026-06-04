@@ -14,12 +14,12 @@ import { LanguageService, SupportedLanguage } from '../core/services/language.se
   template: `
 <!-- Top promo bar -->
 <div class="top-promo-bar">
-  <i class="bi bi-truck me-1"></i>
+  <i class="bi bi-flower2 me-1"></i>
   Livraison rapide partout au Maroc &nbsp;·&nbsp;
   <i class="bi bi-cash-coin me-1"></i>
   Paiement à la livraison &nbsp;·&nbsp;
-  <i class="bi bi-shield-check me-1"></i>
-  100% sécurisé
+  <i class="bi bi-stars me-1"></i>
+  100% authentique
 </div>
 
 <header class="main-header">
@@ -43,8 +43,9 @@ import { LanguageService, SupportedLanguage } from '../core/services/language.se
       </div>
 
       <!-- Brand (centré) -->
-      <a class="brand text-center flex-grow-1 flex-md-grow-0" routerLink="/">
-        Homaid<span class="brand-accent">.</span>
+      <a class="brand text-center flex-grow-1 flex-md-grow-0 d-block" routerLink="/" style="line-height:1;">
+        <div>VELISSE</div>
+        <div class="brand-tagline d-none d-md-block">Parapharmacie &amp; Korean Skincare</div>
       </a>
 
       <!-- Icônes (droite) -->

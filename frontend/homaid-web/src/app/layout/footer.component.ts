@@ -10,11 +10,14 @@ import { RouterLink } from '@angular/router';
   <div class="container">
     <div class="row g-4">
       <div class="col-md-4">
-        <h6 style="font-family:'Playfair Display'; font-size:1.5rem; letter-spacing:.04em; color:#fff; text-transform:none;">
-          Homaid<span style="color:var(--homaid-primary)">.</span>
+        <h6 style="font-family:'Playfair Display'; font-size:1.8rem; letter-spacing:.14em; color:#fff; text-transform:none; font-weight:700;">
+          VELISSE
         </h6>
-        <p class="small mt-3" style="line-height:1.7">
-          Votre boutique en ligne marocaine — produits authentiques, paiement à la livraison et livraison rapide dans tout le Maroc.
+        <div class="brand-tagline mb-3" style="font-size:.65rem; letter-spacing:.3em; color:var(--velisse-rose-gold); text-transform:uppercase">
+          Skincare · Beauty · Care
+        </div>
+        <p class="small" style="line-height:1.7">
+          Parapharmacie &amp; Korean skincare — produits authentiques sélectionnés avec soin. Livraison partout au Maroc, paiement à la livraison.
         </p>
         <div class="d-flex gap-2 mt-3">
           <a href="#" aria-label="Instagram" class="btn-icon-square" style="background:transparent; color:#fff; border-color:#444">
@@ -64,7 +67,7 @@ import { RouterLink } from '@angular/router';
     </div>
 
     <div class="footer-bottom d-flex justify-content-between flex-wrap gap-2">
-      <span>&copy; {{ year }} Homaid Store · Tous droits réservés</span>
+      <span>&copy; {{ year }} Velisse · Tous droits réservés</span>
       <span>Conforme RGPD &amp; loi 09-08 (Maroc)</span>
     </div>
   </div>
