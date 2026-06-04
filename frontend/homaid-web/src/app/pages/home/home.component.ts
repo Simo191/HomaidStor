@@ -13,33 +13,81 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   imports: [CommonModule, RouterLink, MoneyPipe],
   template: `
 <!-- HERO -->
-<section class="hero text-white text-center d-flex align-items-center">
-  <div class="container py-5">
-    <h1 class="display-4 fw-bold mb-3">Bienvenue sur Homaid Store</h1>
-    <p class="lead mb-4">Votre boutique en ligne marocaine · paiement à la livraison · livraison rapide</p>
-    <a routerLink="/catalog" class="btn btn-light btn-lg">
-      <i class="bi bi-bag-fill me-2"></i>Découvrir le catalogue
-    </a>
+<section class="hero-banner">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-7">
+        <div class="section-sub mb-2" style="color:var(--homaid-primary)">NOUVELLE COLLECTION</div>
+        <h1 class="mb-3">
+          L'essentiel du<br>
+          <span style="color:var(--homaid-primary); font-style:italic">style marocain</span>
+        </h1>
+        <p class="lead mb-4">Découvrez une sélection raffinée de produits authentiques. Livraison rapide partout au Maroc, paiement à la livraison.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a routerLink="/catalog" class="btn btn-dark btn-lg btn-uppercase">
+            Découvrir <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+          <a [routerLink]="['/catalog']" [queryParams]="{ featured: 'true' }" class="btn btn-outline-dark btn-lg btn-uppercase">
+            Voir les promos
+          </a>
+        </div>
+      </div>
+      <div class="col-md-5 d-none d-md-block text-center">
+        <div style="position:relative">
+          <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(233,30,99,.15) 0%, transparent 70%); border-radius:50%"></div>
+          <img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=600&q=80&fit=crop"
+               alt="Shopping" class="img-fluid" style="border-radius:8px; position:relative; max-height:420px; object-fit:cover">
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- CATÉGORIES -->
-<section class="container my-5">
-  <h2 class="text-center mb-4">Nos catégories</h2>
+<!-- USP BAR -->
+<section class="bg-light py-4 border-bottom">
+  <div class="container">
+    <div class="row text-center g-3">
+      <div class="col-6 col-md-3">
+        <i class="bi bi-truck" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
+        <div class="small mt-1"><strong>Livraison rapide</strong></div>
+        <small class="text-muted">2 à 5 jours au Maroc</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-cash-coin" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
+        <div class="small mt-1"><strong>Paiement à la livraison</strong></div>
+        <small class="text-muted">Pas de prépaiement</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-shield-check" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
+        <div class="small mt-1"><strong>100% authentique</strong></div>
+        <small class="text-muted">Produits garantis</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-headset" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
+        <div class="small mt-1"><strong>Support 7j/7</strong></div>
+        <small class="text-muted">À votre écoute</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATÉGORIES (mosaïque) -->
+<section class="container">
+  <div class="section-title">
+    <div class="section-sub">Explorer</div>
+    <h2>Nos catégories</h2>
+    <div class="section-line"></div>
+  </div>
   @if (loadingCategories()) {
-    <div class="text-center"><div class="spinner-border text-primary"></div></div>
+    <div class="text-center"><div class="spinner-border" style="color:var(--homaid-primary)"></div></div>
   } @else {
     <div class="row g-3">
       @for (c of categories(); track c.id) {
         <div class="col-6 col-md-3">
-          <a [routerLink]="['/catalog']" [queryParams]="{ category: c.slug }" class="card text-decoration-none text-center category-card h-100">
-            <div class="card-body">
-              @if (c.imageUrl) {
-                <img [src]="c.imageUrl" [alt]="c.name" class="img-fluid mb-2" style="max-height: 80px">
-              } @else {
-                <i class="bi bi-grid-3x3-gap-fill display-4 text-primary"></i>
-              }
-              <h5 class="card-title mt-2 mb-0">{{ c.name }}</h5>
+          <a [routerLink]="['/catalog']" [queryParams]="{ category: c.slug }" class="category-tile d-block text-decoration-none">
+            <img [src]="c.imageUrl || ('https://picsum.photos/seed/cat-' + c.slug + '/400/400')" [alt]="c.name">
+            <div class="category-overlay">
+              <span class="category-name">{{ c.name }}</span>
             </div>
           </a>
         </div>
@@ -48,93 +96,81 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   }
 </section>
 
-<!-- PRODUITS MIS EN AVANT -->
-<section class="container my-5">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <h2 class="mb-0">Produits en vedette</h2>
-    <a routerLink="/catalog" class="btn btn-outline-primary btn-sm">
-      Voir tout <i class="bi bi-arrow-right"></i>
-    </a>
+<!-- PRODUITS EN VEDETTE -->
+<section class="container">
+  <div class="section-title">
+    <div class="section-sub">Tendances</div>
+    <h2>Coups de cœur</h2>
+    <div class="section-line"></div>
   </div>
   @if (loadingFeatured()) {
-    <div class="text-center"><div class="spinner-border text-primary"></div></div>
+    <div class="text-center"><div class="spinner-border" style="color:var(--homaid-primary)"></div></div>
   } @else {
-    <div class="row g-3">
+    <div class="row g-4">
       @for (p of featured(); track p.id) {
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="card h-100 product-card">
-            <a [routerLink]="['/product', p.slug]" class="position-relative">
-              @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
-                <span class="badge bg-danger position-absolute top-0 end-0 m-2">Promo</span>
-              }
-              <img [src]="p.primaryImageUrl || 'https://picsum.photos/seed/' + p.slug + '/400/400'"
-                   [alt]="p.name" class="card-img-top" style="aspect-ratio: 1; object-fit: cover">
-            </a>
-            <div class="card-body d-flex flex-column">
-              @if (p.brandName) {
-                <small class="text-muted">{{ p.brandName }}</small>
-              }
-              <h6 class="card-title">
-                <a [routerLink]="['/product', p.slug]" class="text-decoration-none text-dark">{{ p.name }}</a>
-              </h6>
-              <div class="mt-auto">
-                <div class="d-flex align-items-baseline gap-2">
-                  <span class="fw-bold text-primary">{{ p.basePrice | money:p.currency }}</span>
-                  @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
-                    <small class="text-muted text-decoration-line-through">{{ p.compareAtPrice | money:p.currency }}</small>
-                  }
-                </div>
-                <button class="btn btn-primary btn-sm w-100 mt-2"
+        <div class="col-6 col-md-3">
+          <article class="product-card position-relative">
+            <div class="product-img-wrap">
+              <a [routerLink]="['/product', p.slug]">
+                <img [src]="p.primaryImageUrl || 'https://picsum.photos/seed/' + p.slug + '/500/500'" [alt]="p.name">
+              </a>
+              <div class="product-badges">
+                @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
+                  <span class="badge bg-sale">-{{ discount(p) }}%</span>
+                }
+                @if (!p.isInStock) {
+                  <span class="badge bg-dark">Rupture</span>
+                }
+              </div>
+              <div class="product-quick">
+                <button class="btn btn-light btn-sm w-100 btn-uppercase"
                         [disabled]="!p.isInStock"
                         (click)="addToCart(p)">
-                  @if (p.isInStock) {
-                    <i class="bi bi-cart-plus"></i> Ajouter
-                  } @else {
-                    Rupture de stock
-                  }
+                  <i class="bi bi-bag-plus me-1"></i> Ajouter
                 </button>
               </div>
             </div>
-          </div>
+            <div class="product-info">
+              @if (p.brandName) { <div class="product-brand">{{ p.brandName }}</div> }
+              <a [routerLink]="['/product', p.slug]" class="text-decoration-none">
+                <h3 class="product-name">{{ p.name }}</h3>
+              </a>
+              <div class="product-price">
+                {{ p.basePrice | money:p.currency }}
+                @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
+                  <span class="product-price-old">{{ p.compareAtPrice | money:p.currency }}</span>
+                }
+              </div>
+            </div>
+          </article>
         </div>
       }
+    </div>
+    <div class="text-center mt-4">
+      <a routerLink="/catalog" class="btn btn-outline-dark btn-uppercase">
+        Voir tout le catalogue <i class="bi bi-arrow-right ms-2"></i>
+      </a>
     </div>
   }
 </section>
 
-<!-- ARGUMENTS -->
-<section class="bg-light py-5 my-5">
-  <div class="container">
-    <div class="row text-center g-4">
-      <div class="col-md-4">
-        <i class="bi bi-truck display-4 text-primary"></i>
-        <h5 class="mt-2">Livraison rapide</h5>
-        <p class="text-muted small mb-0">2 à 5 jours partout au Maroc</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-cash-coin display-4 text-primary"></i>
-        <h5 class="mt-2">Paiement à la livraison</h5>
-        <p class="text-muted small mb-0">Cash COD au Maroc, virement à l'international</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-shield-check display-4 text-primary"></i>
-        <h5 class="mt-2">Paiement sécurisé</h5>
-        <p class="text-muted small mb-0">Vos données protégées (RGPD + loi 09-08)</p>
+<!-- NEWSLETTER -->
+<section class="my-5 py-5" style="background:var(--homaid-bg-soft)">
+  <div class="container text-center">
+    <div class="row justify-content-center">
+      <div class="col-md-7">
+        <div class="section-sub mb-2">Rejoignez-nous</div>
+        <h2 class="mb-3">Soyez les premiers informés</h2>
+        <p class="text-muted mb-4">Inscrivez-vous à notre newsletter et recevez en avant-première nos nouveautés et offres exclusives.</p>
+        <form class="d-flex justify-content-center gap-2 flex-wrap" (submit)="$event.preventDefault()">
+          <input type="email" class="form-control" placeholder="Votre adresse email" style="max-width:340px">
+          <button class="btn btn-primary btn-uppercase">S'inscrire</button>
+        </form>
       </div>
     </div>
   </div>
 </section>
-  `,
-  styles: [`
-    .hero {
-      background: linear-gradient(135deg, var(--homaid-primary) 0%, var(--homaid-primary-dark) 100%);
-      min-height: 360px;
-    }
-    .category-card { transition: transform .15s, box-shadow .15s; cursor: pointer; }
-    .category-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-    .product-card { transition: transform .15s, box-shadow .15s; }
-    .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-  `]
+  `
 })
 export class HomeComponent {
   private catalog = inject(CatalogService);
@@ -148,13 +184,18 @@ export class HomeComponent {
 
   constructor() {
     this.catalog.getCategoryTree().subscribe({
-      next: cs => { this.categories.set(cs); this.loadingCategories.set(false); },
+      next: cs => { this.categories.set(cs.slice(0, 8)); this.loadingCategories.set(false); },
       error: () => this.loadingCategories.set(false)
     });
     this.catalog.getFeatured(8).subscribe({
       next: ps => { this.featured.set(ps); this.loadingFeatured.set(false); },
       error: () => this.loadingFeatured.set(false)
     });
+  }
+
+  discount(p: ProductListItem): number {
+    if (!p.compareAtPrice || p.compareAtPrice <= p.basePrice) return 0;
+    return Math.round(100 * (p.compareAtPrice - p.basePrice) / p.compareAtPrice);
   }
 
   addToCart(p: ProductListItem): void {

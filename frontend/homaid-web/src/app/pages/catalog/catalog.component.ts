@@ -111,49 +111,44 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           <i class="bi bi-search me-2"></i>Aucun produit ne correspond à vos critères.
         </div>
       } @else {
-        <div class="row g-3">
+        <div class="row g-4">
           @for (p of page()!.items; track p.id) {
             <div class="col-6 col-md-4">
-              <div class="card h-100 product-card">
-                <a [routerLink]="['/product', p.slug]" class="position-relative">
-                  @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
-                    <span class="badge bg-danger position-absolute top-0 end-0 m-2">-{{ discount(p) }}%</span>
-                  }
-                  @if (!p.isInStock) {
-                    <span class="badge bg-secondary position-absolute top-0 start-0 m-2">Rupture</span>
-                  }
-                  <img [src]="p.primaryImageUrl || 'https://picsum.photos/seed/' + p.slug + '/400/400'"
-                       [alt]="p.name" class="card-img-top" style="aspect-ratio:1; object-fit:cover">
-                </a>
-                <div class="card-body d-flex flex-column">
-                  @if (p.brandName) {
-                    <small class="text-muted">{{ p.brandName }}</small>
-                  }
-                  <h6 class="card-title">
-                    <a [routerLink]="['/product', p.slug]" class="text-decoration-none text-dark">{{ p.name }}</a>
-                  </h6>
-                  @if (p.shortDescription) {
-                    <p class="card-text small text-muted text-truncate">{{ p.shortDescription }}</p>
-                  }
-                  <div class="mt-auto">
-                    <div class="d-flex align-items-baseline gap-2 mb-2">
-                      <span class="fw-bold text-primary">{{ p.basePrice | money:p.currency }}</span>
-                      @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
-                        <small class="text-muted text-decoration-line-through">{{ p.compareAtPrice | money:p.currency }}</small>
-                      }
-                    </div>
-                    <button class="btn btn-primary btn-sm w-100"
+              <article class="product-card position-relative">
+                <div class="product-img-wrap">
+                  <a [routerLink]="['/product', p.slug]">
+                    <img [src]="p.primaryImageUrl || 'https://picsum.photos/seed/' + p.slug + '/500/500'" [alt]="p.name">
+                  </a>
+                  <div class="product-badges">
+                    @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
+                      <span class="badge bg-sale">-{{ discount(p) }}%</span>
+                    }
+                    @if (!p.isInStock) {
+                      <span class="badge bg-dark">Rupture</span>
+                    }
+                  </div>
+                  <div class="product-quick">
+                    <button class="btn btn-light btn-sm w-100 btn-uppercase"
                             [disabled]="!p.isInStock"
                             (click)="addToCart(p)">
-                      @if (p.isInStock) {
-                        <i class="bi bi-cart-plus"></i> Ajouter
-                      } @else {
-                        Rupture
-                      }
+                      <i class="bi bi-bag-plus me-1"></i>
+                      @if (p.isInStock) { Ajouter } @else { Indisponible }
                     </button>
                   </div>
                 </div>
-              </div>
+                <div class="product-info">
+                  @if (p.brandName) { <div class="product-brand">{{ p.brandName }}</div> }
+                  <a [routerLink]="['/product', p.slug]" class="text-decoration-none">
+                    <h3 class="product-name">{{ p.name }}</h3>
+                  </a>
+                  <div class="product-price">
+                    {{ p.basePrice | money:p.currency }}
+                    @if (p.compareAtPrice && p.compareAtPrice > p.basePrice) {
+                      <span class="product-price-old">{{ p.compareAtPrice | money:p.currency }}</span>
+                    }
+                  </div>
+                </div>
+              </article>
             </div>
           }
         </div>
