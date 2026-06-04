@@ -33,6 +33,7 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent), title: 'Homaid Store' },
       { path: 'catalog', loadComponent: () => import('./pages/catalog/catalog.component').then(m => m.CatalogComponent), title: 'Catalogue' },
+      { path: 'brands', loadComponent: () => import('./pages/brands/brands.component').then(m => m.BrandsPageComponent), title: 'Marques' },
       { path: 'product/:slug', loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent), title: 'Produit' },
       { path: 'cart', loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent), title: 'Panier' },
       { path: 'checkout', loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent), title: 'Checkout' },

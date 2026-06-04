@@ -85,8 +85,6 @@ public static class DbInitializer
 
     private static async Task SeedCategoriesAsync(HomaidDbContext db, CancellationToken ct)
     {
-        if (await db.Categories.AnyAsync(ct)) return;
-
         Category Make(string slug, int sort, (string fr, string ar, string en) names)
         {
             var c = new Category { Slug = slug, SortOrder = sort, IsActive = true };
@@ -96,13 +94,21 @@ public static class DbInitializer
             return c;
         }
 
-        db.Categories.AddRange(
-            Make("electronique", 0, ("Électronique", "إلكترونيات", "Electronics")),
-            Make("vetements",    1, ("Vêtements",  "ملابس",     "Clothing")),
-            Make("maison",       2, ("Maison",     "منزل",      "Home")),
-            Make("alimentation", 3, ("Alimentation","أغذية",     "Groceries")),
-            Make("beaute",       4, ("Beauté",     "تجميل",     "Beauty"))
-        );
+        var targets = new[]
+        {
+            Make("cosmetique",    0, ("Cosmétique",   "مستحضرات التجميل",  "Cosmetics")),
+            Make("skin-care",     1, ("Skin Care",    "العناية بالبشرة",   "Skin Care")),
+            Make("k-beauty",      2, ("K-Beauty",     "جمال كوري",         "K-Beauty")),
+            Make("parfums",       3, ("Parfums",      "عطور",              "Perfumes")),
+            Make("sun-tan",       4, ("Sun & Tan",    "حماية شمسية",       "Sun & Tan")),
+            Make("parapharmacie", 5, ("Parapharmacie","صيدلية",            "Parapharmacy")),
+            Make("mini-size",     6, ("Mini Size",    "الأحجام الصغيرة",   "Mini Size")),
+            Make("idees-cadeaux", 7, ("Idées Cadeaux","أفكار هدايا",       "Gift Ideas"))
+        };
+
+        var existingSlugs = await db.Categories.Select(c => c.Slug).ToListAsync(ct);
+        foreach (var c in targets)
+            if (!existingSlugs.Contains(c.Slug)) db.Categories.Add(c);
     }
 
     private static async Task SeedBrandsAndProductsAsync(HomaidDbContext db, CancellationToken ct)
