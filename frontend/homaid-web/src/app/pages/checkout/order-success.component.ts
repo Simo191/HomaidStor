@@ -3,11 +3,12 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderDetail } from '../../core/models/order.models';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
 
 @Component({
   selector: 'app-order-success',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe],
   template: `
 <div class="container my-5">
   <div class="row justify-content-center">
@@ -38,7 +39,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
         <div class="card mb-4">
           <div class="card-header bg-white d-flex justify-content-between">
             <strong>Détails</strong>
-            <span class="badge bg-warning text-dark">{{ order()!.status }}</span>
+            <span class="badge bg-warning text-dark">{{ order()!.status | orderStatusLabel }}</span>
           </div>
           <div class="card-body">
             <dl class="row mb-0">

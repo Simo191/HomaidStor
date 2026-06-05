@@ -5,11 +5,12 @@ import { PagedResult } from '../../core/models/api.models';
 import { OrderList, OrderStatus } from '../../core/models/order.models';
 import { OrderService } from '../../core/services/order.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
 
 @Component({
   selector: 'app-account-orders',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe],
   template: `
 <div class="card">
   <div class="card-header bg-white"><h5 class="mb-0">Mes commandes</h5></div>
@@ -40,7 +41,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                 <td><small>{{ o.createdAt | date:'short' }}</small></td>
                 <td>{{ o.itemCount }}</td>
                 <td><strong>{{ o.total | money:o.currency }}</strong></td>
-                <td><span class="badge" [ngClass]="statusClass(o.status)">{{ o.status }}</span></td>
+                <td><span class="badge" [ngClass]="statusClass(o.status)">{{ o.status | orderStatusLabel }}</span></td>
                 <td>
                   <a [routerLink]="['/account/orders', o.id]" class="btn btn-sm btn-outline-primary">
                     Détails

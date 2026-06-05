@@ -6,11 +6,12 @@ import { PagedResult } from '../core/models/api.models';
 import { OrderList, OrderStatus, PaymentStatus } from '../core/models/order.models';
 import { ApiService } from '../core/services/api.service';
 import { MoneyPipe } from '../shared/pipes/money.pipe';
+import { OrderStatusLabelPipe, PaymentMethodLabelPipe, PaymentStatusLabelPipe } from '../shared/pipes/order-labels.pipes';
 
 @Component({
   selector: 'app-orders-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, PaymentStatusLabelPipe, PaymentMethodLabelPipe],
   template: `
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <h1 class="h3 mb-0">Commandes</h1>
@@ -34,21 +35,23 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
       <div class="col-md-3">
         <select class="form-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
           <option [ngValue]="undefined">Tous les statuts</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Preparing">Preparing</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
+          <option value="Pending">En attente</option>
+          <option value="Confirmed">Confirmée</option>
+          <option value="Preparing">En préparation</option>
+          <option value="Shipped">Expédiée</option>
+          <option value="Delivered">Livrée</option>
+          <option value="Cancelled">Annulée</option>
+          <option value="Refunded">Remboursée</option>
         </select>
       </div>
       <div class="col-md-3">
         <select class="form-select" [(ngModel)]="filters.paymentStatus" (ngModelChange)="onFilterChange()">
           <option [ngValue]="undefined">Tous les paiements</option>
-          <option value="Pending">Pending</option>
-          <option value="AwaitingTransfer">AwaitingTransfer</option>
-          <option value="Received">Received</option>
-          <option value="Cancelled">Cancelled</option>
+          <option value="Pending">En attente</option>
+          <option value="AwaitingTransfer">Virement en attente</option>
+          <option value="Received">Reçu</option>
+          <option value="Cancelled">Annulé</option>
+          <option value="Refunded">Remboursé</option>
         </select>
       </div>
       <div class="col-md-2">
@@ -85,10 +88,10 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
               <td>{{ o.itemCount }}</td>
               <td><strong>{{ o.total | money:o.currency }}</strong></td>
               <td>
-                <small class="d-block">{{ o.paymentMethod === 'CashOnDelivery' ? 'COD' : 'Virement' }}</small>
-                <span class="badge" [ngClass]="paymentClass(o.paymentStatus)">{{ o.paymentStatus }}</span>
+                <small class="d-block">{{ o.paymentMethod | paymentMethodLabel:true }}</small>
+                <span class="badge" [ngClass]="paymentClass(o.paymentStatus)">{{ o.paymentStatus | paymentStatusLabel }}</span>
               </td>
-              <td><span class="badge" [ngClass]="statusClass(o.status)">{{ o.status }}</span></td>
+              <td><span class="badge" [ngClass]="statusClass(o.status)">{{ o.status | orderStatusLabel }}</span></td>
               <td><small>{{ o.createdAt | date:'short' }}</small></td>
               <td>
                 <a [routerLink]="['/admin/orders', o.id]" class="btn btn-sm btn-outline-primary">

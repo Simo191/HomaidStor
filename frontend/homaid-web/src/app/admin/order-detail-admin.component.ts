@@ -6,11 +6,13 @@ import { OrderDetail, OrderStatus, PaymentStatus } from '../core/models/order.mo
 import { ApiException, ApiService } from '../core/services/api.service';
 import { ToastService } from '../core/services/toast.service';
 import { MoneyPipe } from '../shared/pipes/money.pipe';
+import { ORDER_STATUS_LABELS_FR } from '../shared/order-labels';
+import { OrderStatusLabelPipe, PaymentMethodLabelPipe, PaymentStatusLabelPipe } from '../shared/pipes/order-labels.pipes';
 
 @Component({
   selector: 'app-order-detail-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, PaymentStatusLabelPipe, PaymentMethodLabelPipe],
   template: `
 @if (loading()) {
   <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
@@ -21,7 +23,7 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h4 mb-0">
     Commande <code>{{ order()!.orderNumber }}</code>
-    <span class="badge ms-2" [ngClass]="statusClass(order()!.status)">{{ order()!.status }}</span>
+    <span class="badge ms-2" [ngClass]="statusClass(order()!.status)">{{ order()!.status | orderStatusLabel }}</span>
   </h1>
   <a routerLink="/admin/orders" class="btn btn-sm btn-outline-secondary">
     <i class="bi bi-arrow-left"></i> Retour
@@ -59,7 +61,7 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
         @for (h of order()!.statusHistory; track h.changedAt) {
           <li class="list-group-item small">
             <i class="bi bi-circle-fill text-primary me-2" style="font-size:.6rem"></i>
-            <strong>{{ h.toStatus }}</strong>
+            <strong>{{ h.toStatus | orderStatusLabel }}</strong>
             <span class="text-muted">— {{ h.changedAt | date:'short' }} — {{ h.changedBy }}</span>
             @if (h.notes) { <div class="ms-4 text-muted">{{ h.notes }}</div> }
           </li>
@@ -106,7 +108,7 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
       <div class="card-body">
         <select class="form-select form-select-sm mb-2" [(ngModel)]="newStatus">
           <option [ngValue]="undefined">-- Choisir --</option>
-          @for (s of allowedStatuses(); track s) { <option [value]="s">{{ s }}</option> }
+          @for (s of allowedStatuses(); track s) { <option [value]="s">{{ s | orderStatusLabel }}</option> }
         </select>
         <textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Note (optionnel)"
                   [(ngModel)]="statusNote"></textarea>
@@ -122,21 +124,23 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
     <div class="card mb-3">
       <div class="card-header">
         <strong>Paiement</strong>
-        <span class="badge ms-1" [ngClass]="paymentClass(order()!.paymentStatus)">{{ order()!.paymentStatus }}</span>
+        <span class="badge ms-1" [ngClass]="paymentClass(order()!.paymentStatus)">{{ order()!.paymentStatus | paymentStatusLabel }}</span>
       </div>
       <div class="card-body small">
-        Mode : @if (order()!.paymentMethod === 'CashOnDelivery') { <i class="bi bi-cash-coin"></i> COD }
-        @else { <i class="bi bi-bank"></i> Virement }
+        Mode :
+        @if (order()!.paymentMethod === 'CashOnDelivery') { <i class="bi bi-cash-coin"></i> }
+        @else { <i class="bi bi-bank"></i> }
+        {{ order()!.paymentMethod | paymentMethodLabel }}
         @if (order()!.bankTransferReference) {
           <div class="mt-2">Réf : <code>{{ order()!.bankTransferReference }}</code></div>
         }
         <hr>
         <select class="form-select form-select-sm mb-2" [(ngModel)]="newPaymentStatus">
-          <option value="Pending">Pending</option>
-          <option value="AwaitingTransfer">AwaitingTransfer</option>
-          <option value="Received">Received</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="Refunded">Refunded</option>
+          <option value="Pending">En attente</option>
+          <option value="AwaitingTransfer">Virement en attente</option>
+          <option value="Received">Reçu</option>
+          <option value="Cancelled">Annulé</option>
+          <option value="Refunded">Remboursé</option>
         </select>
         <input class="form-control form-control-sm mb-2" placeholder="Réf virement (optionnel)"
                [(ngModel)]="paymentReference">
@@ -226,7 +230,7 @@ export class OrderDetailAdminComponent {
       { status: this.newStatus, notes: this.statusNote || null }).subscribe({
       next: o => {
         this.order.set(o);
-        this.toast.success(`Statut mis à jour : ${o.status}`);
+        this.toast.success(`Statut mis à jour : ${ORDER_STATUS_LABELS_FR[o.status as OrderStatus] ?? o.status}`);
         this.newStatus = undefined;
         this.statusNote = '';
         this.submitting.set(false);

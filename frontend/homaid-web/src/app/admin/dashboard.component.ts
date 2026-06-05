@@ -7,13 +7,15 @@ import { ProductListItem } from '../core/models/catalog.models';
 import { OrderList } from '../core/models/order.models';
 import { DashboardStats } from '../core/models/stats.models';
 import { ApiService } from '../core/services/api.service';
+import { ORDER_STATUS_LABELS_FR, PAYMENT_METHOD_LABELS_FR } from '../shared/order-labels';
 import { MoneyPipe } from '../shared/pipes/money.pipe';
+import { OrderStatusLabelPipe } from '../shared/pipes/order-labels.pipes';
 import { ChartCanvasComponent } from './shared/chart-canvas.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe, ChartCanvasComponent],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, ChartCanvasComponent],
   template: `
 <!-- Page header -->
 <div class="page-header">
@@ -267,7 +269,7 @@ import { ChartCanvasComponent } from './shared/chart-canvas.component';
                 <td><a [routerLink]="['/admin/orders', o.id]" class="order-link">{{ o.orderNumber }}</a></td>
                 <td>{{ o.customerName }}<br><small style="color:var(--admin-text-muted)">{{ o.createdAt | date:'short' }}</small></td>
                 <td><strong>{{ o.total | money:o.currency }}</strong></td>
-                <td><span class="status-pill" [ngClass]="statusClass(o.status)">{{ o.status }}</span></td>
+                <td><span class="status-pill" [ngClass]="statusClass(o.status)">{{ o.status | orderStatusLabel }}</span></td>
               </tr>
             }
           </tbody>
@@ -703,11 +705,12 @@ export class DashboardComponent {
   statusChartData = computed<ChartConfiguration<'doughnut'>['data']>(() => {
     const map: Record<string, number> = {};
     for (const o of this.orders()) map[o.status] = (map[o.status] ?? 0) + 1;
-    const labels = Object.keys(map);
+    const keys = Object.keys(map);
+    const labels = keys.map(k => (ORDER_STATUS_LABELS_FR as Record<string, string>)[k] ?? k);
     return {
       labels,
       datasets: [{
-        data: labels.map(k => map[k]),
+        data: keys.map(k => map[k]),
         backgroundColor: ['#D49A5C', '#0288D1', '#B88577', '#6B8E5A', '#8B7068', '#C04B3F', '#3D2817'],
         borderWidth: 2,
         borderColor: '#fff'

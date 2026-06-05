@@ -6,11 +6,12 @@ import { ApiException } from '../../core/services/api.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
 
 @Component({
   selector: 'app-account-order-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, PaymentStatusLabelPipe],
   template: `
 @if (loading()) {
   <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
@@ -20,7 +21,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 <div class="card mb-3">
   <div class="card-header bg-white d-flex justify-content-between">
     <strong>Commande <code>{{ order()!.orderNumber }}</code></strong>
-    <span class="badge" [ngClass]="statusClass(order()!.status)">{{ order()!.status }}</span>
+    <span class="badge" [ngClass]="statusClass(order()!.status)">{{ order()!.status | orderStatusLabel }}</span>
   </div>
   <div class="card-body">
     <div class="row">
@@ -43,7 +44,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           } @else {
             <i class="bi bi-bank"></i> Virement bancaire
           }
-          · <span class="badge bg-secondary">{{ order()!.paymentStatus }}</span>
+          · <span class="badge bg-secondary">{{ order()!.paymentStatus | paymentStatusLabel }}</span>
         </p>
         @if (order()!.shippingMethodName) {
           <h6 class="mt-2">Livraison</h6>
@@ -83,7 +84,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     @for (h of order()!.statusHistory; track h.changedAt) {
       <li class="list-group-item small">
         <i class="bi bi-circle-fill text-primary me-2" style="font-size:.6rem"></i>
-        <strong>{{ h.toStatus }}</strong>
+        <strong>{{ h.toStatus | orderStatusLabel }}</strong>
         <span class="text-muted">— {{ h.changedAt | date:'short' }}</span>
         @if (h.notes) { <div class="ms-4 text-muted">{{ h.notes }}</div> }
       </li>
