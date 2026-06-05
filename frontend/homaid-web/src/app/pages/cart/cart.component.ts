@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
@@ -9,16 +10,16 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, TranslatePipe],
   template: `
 <div class="container my-4 my-md-5">
 
   <!-- Page title -->
   <div class="text-center mb-5">
     <div class="section-sub" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
-      Panier
+      {{ 'cart.eyebrow' | translate }}
     </div>
-    <h1 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:500; margin-top:.5rem">Mon panier</h1>
+    <h1 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:500; margin-top:.5rem">{{ 'cart.title' | translate }}</h1>
     <div class="section-line d-inline-flex align-items-center gap-2 mt-2" style="color:var(--velisse-rose-gold)">
       <span style="width:40px; height:1px; background:var(--velisse-rose-gold); display:inline-block"></span>
       <i class="bi bi-flower2"></i>
@@ -29,10 +30,10 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   @if (cart.isEmpty()) {
     <div class="text-center py-5">
       <i class="bi bi-bag-x display-1" style="color:var(--velisse-rose-soft)"></i>
-      <h4 class="mt-3" style="font-weight:500">Votre panier est vide</h4>
-      <p style="color:var(--velisse-muted)">Découvrez nos produits skincare et beauté.</p>
+      <h4 class="mt-3" style="font-weight:500">{{ 'cart.empty_title' | translate }}</h4>
+      <p style="color:var(--velisse-muted)">{{ 'cart.empty_text' | translate }}</p>
       <a routerLink="/catalog" class="btn btn-dark btn-uppercase mt-3">
-        Parcourir le catalogue <i class="bi bi-arrow-right ms-2"></i>
+        {{ 'cart.browse_catalog' | translate }} <i class="bi bi-arrow-right ms-2"></i>
       </a>
     </div>
   } @else {
@@ -52,7 +53,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                 <h6 class="mb-1" style="font-family:'Poppins'; font-weight:500">
                   <a [routerLink]="['/product', line.slug]" class="text-decoration-none" style="color:var(--velisse-text)">{{ line.name }}</a>
                 </h6>
-                <small style="color:var(--velisse-muted)">SKU : {{ line.sku }}</small><br>
+                <small style="color:var(--velisse-muted)">{{ 'cart.sku' | translate }} : {{ line.sku }}</small><br>
                 <span class="fw-semibold" style="color:var(--velisse-rose-gold)">{{ line.unitPrice | money:line.currency }}</span>
               </div>
               <div class="col-7 col-md-3">
@@ -63,7 +64,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                   <button type="button" class="qty-btn" (click)="setQty(line.productId, line.quantity + 1)">+</button>
                 </div>
                 @if (line.stockQuantity && line.quantity >= line.stockQuantity) {
-                  <small class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Stock max</small>
+                  <small class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> {{ 'cart.stock_max' | translate }}</small>
                 }
               </div>
               <div class="col-3 col-md-1 text-end">
@@ -81,10 +82,10 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
         <div class="d-flex flex-wrap gap-2 mt-3">
           <button class="btn btn-outline-dark btn-sm" (click)="clear()">
-            <i class="bi bi-trash me-1"></i> Vider le panier
+            <i class="bi bi-trash me-1"></i> {{ 'cart.clear_cart' | translate }}
           </button>
           <a routerLink="/catalog" class="btn btn-link btn-sm" style="color:var(--velisse-rose-gold)">
-            <i class="bi bi-arrow-left me-1"></i> Continuer mes achats
+            <i class="bi bi-arrow-left me-1"></i> {{ 'cart.continue_shopping' | translate }}
           </a>
         </div>
       </div>
@@ -92,25 +93,25 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
       <!-- Résumé -->
       <div class="col-lg-4">
         <div class="order-summary p-4 sticky-top" style="top:90px">
-          <h5 class="mb-3" style="font-family:'Playfair Display'; font-weight:600">Résumé</h5>
+          <h5 class="mb-3" style="font-family:'Playfair Display'; font-weight:600">{{ 'cart.summary_title' | translate }}</h5>
           <div class="d-flex justify-content-between mb-2">
-            <span style="color:var(--velisse-muted)">Articles ({{ cart.itemCount() }})</span>
+            <span style="color:var(--velisse-muted)">{{ 'cart.items_count' | translate }} ({{ cart.itemCount() }})</span>
             <span>{{ cart.subtotal() | money:cart.currency() }}</span>
           </div>
           <div class="d-flex justify-content-between mb-3 small" style="color:var(--velisse-muted)">
-            <span>Frais de livraison</span>
-            <span><em>Calculé au checkout</em></span>
+            <span>{{ 'cart.shipping' | translate }}</span>
+            <span><em>{{ 'cart.shipping_calc' | translate }}</em></span>
           </div>
           <hr style="border-color:var(--velisse-border)">
           <div class="d-flex justify-content-between mb-3">
-            <strong>Sous-total</strong>
+            <strong>{{ 'cart.subtotal' | translate }}</strong>
             <strong style="color:var(--velisse-rose-gold); font-size:1.15rem">{{ cart.subtotal() | money:cart.currency() }}</strong>
           </div>
           <a routerLink="/checkout" class="btn btn-dark w-100 btn-uppercase">
-            Procéder au checkout <i class="bi bi-arrow-right ms-1"></i>
+            {{ 'cart.checkout' | translate }} <i class="bi bi-arrow-right ms-1"></i>
           </a>
           <p class="small text-center mt-3 mb-0" style="color:var(--velisse-muted)">
-            <i class="bi bi-shield-lock me-1"></i> Paiement sécurisé
+            <i class="bi bi-shield-lock me-1"></i> {{ 'cart.secure_payment' | translate }}
           </p>
         </div>
       </div>
@@ -122,6 +123,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 export class CartComponent {
   readonly cart = inject(CartService);
   private toast = inject(ToastService);
+  private translate = inject(TranslateService);
 
   setQty(productId: string, qty: number): void {
     if (qty < 1) { this.remove(productId); return; }
@@ -130,13 +132,13 @@ export class CartComponent {
 
   remove(productId: string, name?: string): void {
     this.cart.remove(productId);
-    if (name) this.toast.info(`${name} retiré du panier`);
+    if (name) this.toast.info(`${name} ${this.translate.instant('cart.removed')}`);
   }
 
   clear(): void {
-    if (confirm('Vider tout le panier ?')) {
+    if (confirm(this.translate.instant('cart.clear_confirm'))) {
       this.cart.clear();
-      this.toast.info('Panier vidé');
+      this.toast.info(this.translate.instant('cart.cleared'));
     }
   }
 }

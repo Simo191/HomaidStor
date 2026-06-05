@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { OrderDetail } from '../../core/models/order.models';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
@@ -8,7 +9,7 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
 @Component({
   selector: 'app-order-success',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, TranslatePipe],
   template: `
 <div class="container my-5">
   <div class="row justify-content-center">
@@ -18,9 +19,9 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
           <i class="bi bi-check-lg" style="font-size:3.2rem; color:var(--velisse-rose-gold)"></i>
         </div>
         <div class="section-sub mt-3 mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.3em; font-size:.75rem; text-transform:uppercase; font-weight:500">
-          Commande confirmée
+          {{ 'success.eyebrow' | translate }}
         </div>
-        <h1 class="mb-2" style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:500">Merci pour votre commande !</h1>
+        <h1 class="mb-2" style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:500">{{ 'success.title' | translate }}</h1>
         <div class="d-inline-flex align-items-center gap-2 my-2" style="color:var(--velisse-rose-gold)">
           <span style="width:30px; height:1px; background:var(--velisse-rose-gold)"></span>
           <i class="bi bi-flower2" style="font-size:.7rem"></i>
@@ -28,9 +29,11 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
         </div>
         <p class="lead" style="color:var(--velisse-muted)">
           @if (orderNumber()) {
-            Votre commande <strong style="color:var(--velisse-rose-gold)">{{ orderNumber() }}</strong> a bien été enregistrée.
+            {{ 'success.your_order' | translate }}
+            <strong style="color:var(--velisse-rose-gold)">{{ orderNumber() }}</strong>
+            {{ 'success.received' | translate }}
           } @else {
-            Votre commande a bien été enregistrée.
+            {{ 'success.received_short' | translate }}
           }
         </p>
       </div>
@@ -38,21 +41,21 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
       @if (order()) {
         <div class="card mb-4">
           <div class="card-header bg-white d-flex justify-content-between">
-            <strong>Détails</strong>
+            <strong>{{ 'success.details' | translate }}</strong>
             <span class="badge bg-warning text-dark">{{ order()!.status | orderStatusLabel }}</span>
           </div>
           <div class="card-body">
             <dl class="row mb-0">
-              <dt class="col-sm-4">Numéro de commande</dt>
+              <dt class="col-sm-4">{{ 'success.order_number' | translate }}</dt>
               <dd class="col-sm-8"><code>{{ order()!.orderNumber }}</code></dd>
 
-              <dt class="col-sm-4">Email</dt>
+              <dt class="col-sm-4">{{ 'success.email' | translate }}</dt>
               <dd class="col-sm-8">{{ order()!.customerEmail }}</dd>
 
-              <dt class="col-sm-4">Téléphone</dt>
+              <dt class="col-sm-4">{{ 'success.phone' | translate }}</dt>
               <dd class="col-sm-8">{{ order()!.customerPhone }}</dd>
 
-              <dt class="col-sm-4">Livraison à</dt>
+              <dt class="col-sm-4">{{ 'success.ship_to' | translate }}</dt>
               <dd class="col-sm-8">
                 {{ order()!.shippingAddress.fullName }}<br>
                 {{ order()!.shippingAddress.street }}
@@ -62,16 +65,16 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
                 <br>{{ order()!.shippingAddress.countryCode }}
               </dd>
 
-              <dt class="col-sm-4">Mode de livraison</dt>
+              <dt class="col-sm-4">{{ 'success.shipping_method' | translate }}</dt>
               <dd class="col-sm-8">{{ order()!.shippingMethodName }}</dd>
 
-              <dt class="col-sm-4">Mode de paiement</dt>
+              <dt class="col-sm-4">{{ 'success.payment_method' | translate }}</dt>
               <dd class="col-sm-8">
                 @if (order()!.paymentMethod === 'CashOnDelivery') {
-                  <i class="bi bi-cash-coin"></i> Paiement à la livraison
+                  <i class="bi bi-cash-coin"></i> {{ 'payment_method.CashOnDelivery' | translate }}
                 } @else {
-                  <i class="bi bi-bank"></i> Virement bancaire
-                  <small class="d-block text-muted">Vous recevrez un email avec le RIB.</small>
+                  <i class="bi bi-bank"></i> {{ 'payment_method.BankTransfer' | translate }}
+                  <small class="d-block text-muted">{{ 'success.payment_bank_note' | translate }}</small>
                 }
               </dd>
             </dl>
@@ -79,7 +82,7 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
         </div>
 
         <div class="card mb-4">
-          <div class="card-header bg-white"><strong>Articles</strong></div>
+          <div class="card-header bg-white"><strong>{{ 'success.items' | translate }}</strong></div>
           <div class="card-body">
             @for (item of order()!.items; track item.id) {
               <div class="d-flex gap-2 mb-2">
@@ -89,30 +92,28 @@ import { OrderStatusLabelPipe } from '../../shared/pipes/order-labels.pipes';
                 }
                 <div class="flex-grow-1">
                   <strong>{{ item.productName }}</strong>
-                  <div class="small text-muted">SKU {{ item.productSku }} · × {{ item.quantity }}</div>
+                  <div class="small text-muted">{{ 'cart.sku' | translate }} {{ item.productSku }} · × {{ item.quantity }}</div>
                 </div>
                 <div class="text-end fw-bold">{{ item.lineTotal | money:order()!.currency }}</div>
               </div>
             }
             <hr>
-            <div class="d-flex justify-content-between"><span>Sous-total</span><span>{{ order()!.subtotal | money:order()!.currency }}</span></div>
-            <div class="d-flex justify-content-between"><span>Livraison</span><span>{{ order()!.shippingFee | money:order()!.currency }}</span></div>
-            <div class="d-flex justify-content-between fs-5 mt-2"><strong>Total</strong><strong class="text-primary">{{ order()!.total | money:order()!.currency }}</strong></div>
+            <div class="d-flex justify-content-between"><span>{{ 'success.subtotal' | translate }}</span><span>{{ order()!.subtotal | money:order()!.currency }}</span></div>
+            <div class="d-flex justify-content-between"><span>{{ 'success.shipping' | translate }}</span><span>{{ order()!.shippingFee | money:order()!.currency }}</span></div>
+            <div class="d-flex justify-content-between fs-5 mt-2"><strong>{{ 'success.total' | translate }}</strong><strong class="text-primary">{{ order()!.total | money:order()!.currency }}</strong></div>
           </div>
         </div>
       } @else {
-        <div class="alert alert-info">
-          Un email de confirmation va vous être envoyé sous peu.
-        </div>
+        <div class="alert alert-info">{{ 'success.no_details' | translate }}</div>
       }
 
       <div class="text-center">
         <a routerLink="/catalog" class="btn btn-primary">
-          <i class="bi bi-bag"></i> Continuer mes achats
+          <i class="bi bi-bag"></i> {{ 'success.continue_shopping' | translate }}
         </a>
         @if (orderNumber()) {
           <a [routerLink]="['/account/orders']" class="btn btn-outline-secondary ms-2">
-            Suivre ma commande
+            {{ 'success.track_order' | translate }}
           </a>
         }
       </div>

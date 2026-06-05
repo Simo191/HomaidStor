@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CategoryTree, ProductListItem } from '../../core/models/catalog.models';
 import { CartService } from '../../core/services/cart.service';
 import { CatalogService } from '../../core/services/catalog.service';
@@ -11,7 +12,7 @@ import { HeroSliderComponent } from './hero-slider.component';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe, HeroSliderComponent],
+  imports: [CommonModule, RouterLink, MoneyPipe, HeroSliderComponent, TranslatePipe],
   template: `
 <!-- HERO SLIDER : 5 produits coup de cœur sélectionnés en admin -->
 @if (heroProducts().length > 0) {
@@ -23,16 +24,16 @@ import { HeroSliderComponent } from './hero-slider.component';
       <div class="row align-items-center">
         <div class="col-md-7">
           <div class="section-sub mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
-            Skincare · Beauty · Care
+            {{ 'home.hero_eyebrow' | translate }}
           </div>
           <h1 class="mb-3" style="color:var(--velisse-brown)">
-            La beauté<br>
-            <span style="color:var(--velisse-rose-gold); font-style:italic">venue de Corée</span>
+            {{ 'home.hero_title_1' | translate }}<br>
+            <span style="color:var(--velisse-rose-gold); font-style:italic">{{ 'home.hero_title_2' | translate }}</span>
           </h1>
-          <p class="lead mb-4">Parapharmacie &amp; Korean skincare : une sélection raffinée pour révéler l'éclat naturel de votre peau.</p>
+          <p class="lead mb-4">{{ 'home.hero_lead' | translate }}</p>
           <div class="d-flex flex-wrap gap-3">
             <a routerLink="/catalog" class="btn btn-dark btn-lg btn-uppercase">
-              Découvrir <i class="bi bi-arrow-right ms-2"></i>
+              {{ 'home.cta_discover' | translate }} <i class="bi bi-arrow-right ms-2"></i>
             </a>
           </div>
         </div>
@@ -47,23 +48,23 @@ import { HeroSliderComponent } from './hero-slider.component';
     <div class="row text-center g-3">
       <div class="col-6 col-md-3">
         <i class="bi bi-truck" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
-        <div class="small mt-1"><strong>Livraison rapide</strong></div>
-        <small class="text-muted">2 à 5 jours au Maroc</small>
+        <div class="small mt-1"><strong>{{ 'home.usp_delivery' | translate }}</strong></div>
+        <small class="text-muted">{{ 'home.usp_delivery_sub' | translate }}</small>
       </div>
       <div class="col-6 col-md-3">
         <i class="bi bi-cash-coin" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
-        <div class="small mt-1"><strong>Paiement à la livraison</strong></div>
-        <small class="text-muted">Pas de prépaiement</small>
+        <div class="small mt-1"><strong>{{ 'home.usp_payment' | translate }}</strong></div>
+        <small class="text-muted">{{ 'home.usp_payment_sub' | translate }}</small>
       </div>
       <div class="col-6 col-md-3">
         <i class="bi bi-shield-check" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
-        <div class="small mt-1"><strong>100% authentique</strong></div>
-        <small class="text-muted">Produits garantis</small>
+        <div class="small mt-1"><strong>{{ 'home.usp_authentic' | translate }}</strong></div>
+        <small class="text-muted">{{ 'home.usp_authentic_sub' | translate }}</small>
       </div>
       <div class="col-6 col-md-3">
         <i class="bi bi-headset" style="font-size:1.5rem; color:var(--homaid-primary)"></i>
-        <div class="small mt-1"><strong>Support 7j/7</strong></div>
-        <small class="text-muted">À votre écoute</small>
+        <div class="small mt-1"><strong>{{ 'home.usp_support' | translate }}</strong></div>
+        <small class="text-muted">{{ 'home.usp_support_sub' | translate }}</small>
       </div>
     </div>
   </div>
@@ -72,8 +73,8 @@ import { HeroSliderComponent } from './hero-slider.component';
 <!-- CATÉGORIES (mosaïque) -->
 <section class="container">
   <div class="section-title">
-    <div class="section-sub">Explorer</div>
-    <h2>Nos catégories</h2>
+    <div class="section-sub">{{ 'home.categories_eyebrow' | translate }}</div>
+    <h2>{{ 'home.categories_title' | translate }}</h2>
     <div class="section-line"><i class="bi bi-flower2"></i></div>
   </div>
   @if (loadingCategories()) {
@@ -97,8 +98,8 @@ import { HeroSliderComponent } from './hero-slider.component';
 <!-- PRODUITS EN VEDETTE -->
 <section class="container">
   <div class="section-title">
-    <div class="section-sub">Tendances</div>
-    <h2>Coups de cœur</h2>
+    <div class="section-sub">{{ 'home.trending_eyebrow' | translate }}</div>
+    <h2>{{ 'home.trending_title' | translate }}</h2>
     <div class="section-line"><i class="bi bi-flower2"></i></div>
   </div>
   @if (loadingFeatured()) {
@@ -117,14 +118,14 @@ import { HeroSliderComponent } from './hero-slider.component';
                   <span class="badge bg-sale">-{{ discount(p) }}%</span>
                 }
                 @if (!p.isInStock) {
-                  <span class="badge bg-dark">Rupture</span>
+                  <span class="badge bg-dark">{{ 'product.out_of_stock' | translate }}</span>
                 }
               </div>
               <div class="product-quick">
                 <button class="btn btn-light btn-sm w-100 btn-uppercase"
                         [disabled]="!p.isInStock"
                         (click)="addToCart(p)">
-                  <i class="bi bi-bag-plus me-1"></i> Ajouter
+                  <i class="bi bi-bag-plus me-1"></i> {{ 'product.add_to_cart' | translate }}
                 </button>
               </div>
             </div>
@@ -146,7 +147,7 @@ import { HeroSliderComponent } from './hero-slider.component';
     </div>
     <div class="text-center mt-4">
       <a routerLink="/catalog" class="btn btn-outline-dark btn-uppercase">
-        Voir tout le catalogue <i class="bi bi-arrow-right ms-2"></i>
+        {{ 'home.view_all' | translate }} <i class="bi bi-arrow-right ms-2"></i>
       </a>
     </div>
   }
@@ -157,12 +158,12 @@ import { HeroSliderComponent } from './hero-slider.component';
   <div class="container text-center">
     <div class="row justify-content-center">
       <div class="col-md-7">
-        <div class="section-sub mb-2">Rejoignez-nous</div>
-        <h2 class="mb-3">Soyez les premiers informés</h2>
-        <p class="text-muted mb-4">Inscrivez-vous à notre newsletter et recevez en avant-première nos nouveautés et offres exclusives.</p>
+        <div class="section-sub mb-2">{{ 'home.rejoin_eyebrow' | translate }}</div>
+        <h2 class="mb-3">{{ 'footer.subscription_title' | translate }}</h2>
+        <p class="text-muted mb-4">{{ 'footer.subscription_text' | translate }}</p>
         <form class="d-flex justify-content-center gap-2 flex-wrap" (submit)="$event.preventDefault()">
-          <input type="email" class="form-control" placeholder="Votre adresse email" style="max-width:340px">
-          <button class="btn btn-primary btn-uppercase">S'inscrire</button>
+          <input type="email" class="form-control" [placeholder]="'footer.newsletter_placeholder' | translate" style="max-width:340px">
+          <button class="btn btn-primary btn-uppercase">{{ 'footer.subscribe' | translate }}</button>
         </form>
       </div>
     </div>
@@ -174,6 +175,7 @@ export class HomeComponent {
   private catalog = inject(CatalogService);
   private cart = inject(CartService);
   private toast = inject(ToastService);
+  private translate = inject(TranslateService);
 
   categories = signal<CategoryTree[]>([]);
   featured = signal<ProductListItem[]>([]);
@@ -201,6 +203,6 @@ export class HomeComponent {
 
   addToCart(p: ProductListItem): void {
     this.cart.add(p);
-    this.toast.success(`${p.name} ajouté au panier`);
+    this.toast.success(`${p.name} ${this.translate.instant('cart.added')}`);
   }
 }
