@@ -5,6 +5,7 @@ import { ChartConfiguration } from 'chart.js/auto';
 import { PagedResult } from '../core/models/api.models';
 import { ProductListItem } from '../core/models/catalog.models';
 import { OrderList } from '../core/models/order.models';
+import { DashboardStats } from '../core/models/stats.models';
 import { ApiService } from '../core/services/api.service';
 import { MoneyPipe } from '../shared/pipes/money.pipe';
 import { ChartCanvasComponent } from './shared/chart-canvas.component';
@@ -152,6 +153,92 @@ import { ChartCanvasComponent } from './shared/chart-canvas.component';
       <div class="chart-canvas-wrap" style="height:240px">
         <app-chart-canvas type="pie" [data]="paymentChartData()" [options]="paymentChartOpts"></app-chart-canvas>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts row 3 : Monthly revenue (12 mois) + Top categories -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-8">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h6>Revenu mensuel</h6>
+          <small>12 derniers mois</small>
+        </div>
+        <div class="kpi-trend up" style="margin-top:0">
+          <i class="bi bi-graph-up"></i>
+          <span>Total 12 mois : {{ revenue12mTotal() | money:'MAD' }}</span>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap" style="height:260px">
+        <app-chart-canvas type="bar" [data]="monthlyRevenueData()" [options]="monthlyRevenueOpts"></app-chart-canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-4">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h6>Top catégories</h6>
+          <small>Par revenu sur {{ range() }} jours</small>
+        </div>
+      </div>
+      @if (stats()?.topCategories?.length) {
+        <div class="chart-canvas-wrap" style="height:260px">
+          <app-chart-canvas type="doughnut" [data]="topCategoriesData()" [options]="topCategoriesOpts"></app-chart-canvas>
+        </div>
+      } @else {
+        <div class="empty" style="padding:4rem 1rem">Aucune vente sur la période</div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Top products bar -->
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h6>Top produits vendus</h6>
+          <small>Quantité vendue sur {{ range() }} jours</small>
+        </div>
+        <a routerLink="/admin/products" class="btn-link-velisse">Gérer produits <i class="bi bi-arrow-right"></i></a>
+      </div>
+      @if ((stats()?.topProducts?.length ?? 0) === 0) {
+        <div class="empty" style="padding:3rem">Aucune vente sur la période</div>
+      } @else {
+        <div class="row g-0">
+          <div class="col-md-7">
+            <div class="chart-canvas-wrap" style="height:340px; padding-right:1rem">
+              <app-chart-canvas type="bar" [data]="topProductsData()" [options]="topProductsOpts"></app-chart-canvas>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="top-products-list">
+              @for (p of stats()!.topProducts.slice(0, 5); track p.productId; let i = $index) {
+                <div class="top-product-row">
+                  <div class="rank rank-{{ i + 1 }}">#{{ i + 1 }}</div>
+                  @if (p.imageUrl) {
+                    <img [src]="p.imageUrl" [alt]="p.name" class="top-product-img">
+                  } @else {
+                    <div class="top-product-img-placeholder"><i class="bi bi-box"></i></div>
+                  }
+                  <div class="top-product-info">
+                    <strong>{{ p.name }}</strong>
+                    <small>{{ p.sku }}</small>
+                  </div>
+                  <div class="top-product-stats">
+                    <strong>{{ p.quantitySold }}<small>×</small></strong>
+                    <small>{{ p.revenue | money:'MAD' }}</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </div>
@@ -421,6 +508,71 @@ import { ChartCanvasComponent } from './shared/chart-canvas.component';
       color: var(--admin-text-muted);
       font-size: .9rem;
     }
+
+    /* Top products list à côté du chart */
+    .top-products-list {
+      padding: .5rem 1rem .5rem 1.5rem;
+      border-left: 1px solid var(--admin-border);
+      height: 100%;
+    }
+    .top-product-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 0;
+      border-bottom: 1px dashed var(--admin-border);
+    }
+    .top-product-row:last-child { border-bottom: none; }
+    .rank {
+      width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%; font-weight: 700;
+      font-size: .72rem; flex-shrink: 0;
+      background: var(--admin-border); color: var(--admin-text-muted);
+    }
+    .rank-1 { background: #F4D58D; color: #8a5e1a; }
+    .rank-2 { background: #DCD9CF; color: #555; }
+    .rank-3 { background: #E8C8AF; color: #8a3e1a; }
+    .top-product-img, .top-product-img-placeholder {
+      width: 42px; height: 42px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .top-product-img-placeholder {
+      background: var(--admin-accent-soft); color: var(--admin-accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .top-product-info {
+      flex-grow: 1;
+      min-width: 0;
+      display: flex; flex-direction: column;
+      line-height: 1.2;
+    }
+    .top-product-info strong {
+      font-size: .9rem; color: var(--admin-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .top-product-info small {
+      color: var(--admin-text-muted); font-size: .72rem; font-family: monospace;
+    }
+    .top-product-stats {
+      text-align: right; flex-shrink: 0; line-height: 1.2;
+      display: flex; flex-direction: column;
+    }
+    .top-product-stats strong {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.15rem; color: var(--admin-accent);
+      font-weight: 600;
+    }
+    .top-product-stats strong small {
+      font-size: .8rem; color: var(--admin-text-muted);
+      font-family: 'Poppins'; font-weight: 400;
+    }
+    .top-product-stats > small {
+      color: var(--admin-text-muted); font-size: .72rem;
+    }
   `]
 })
 export class DashboardComponent {
@@ -428,6 +580,7 @@ export class DashboardComponent {
 
   orders = signal<OrderList[]>([]);
   products = signal<ProductListItem[]>([]);
+  stats = signal<DashboardStats | null>(null);
   loading = signal(true);
   range = signal(14);
 
@@ -631,6 +784,106 @@ export class DashboardComponent {
     }
   };
 
+  // ============ TOP PRODUCTS (horizontal bar) ============
+  topProductsData = computed<ChartConfiguration<'bar'>['data']>(() => {
+    const top = this.stats()?.topProducts.slice(0, 8) ?? [];
+    return {
+      labels: top.map(p => p.name.length > 22 ? p.name.slice(0, 20) + '…' : p.name),
+      datasets: [{
+        label: 'Quantité vendue',
+        data: top.map(p => p.quantitySold),
+        backgroundColor: '#B88577',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    };
+  });
+
+  topProductsOpts: ChartConfiguration<'bar'>['options'] = {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, ticks: { stepSize: 1, color: '#8B7068' }, grid: { color: '#F0DDD7' } },
+      y: { grid: { display: false }, ticks: { color: '#8B7068', font: { size: 11 } } }
+    }
+  };
+
+  // ============ TOP CATEGORIES (doughnut) ============
+  topCategoriesData = computed<ChartConfiguration<'doughnut'>['data']>(() => {
+    const cats = this.stats()?.topCategories ?? [];
+    return {
+      labels: cats.map(c => c.name),
+      datasets: [{
+        data: cats.map(c => c.revenue),
+        backgroundColor: ['#B88577', '#3D2817', '#D49A5C', '#6B8E5A', '#8B7068'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    };
+  });
+
+  topCategoriesOpts: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: ${Number(ctx.parsed).toFixed(2)} MAD`
+        }
+      }
+    }
+  };
+
+  // ============ MONTHLY REVENUE (12 mois) ============
+  private monthLabel(year: number, month: number): string {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return `${months[month - 1]} ${String(year).slice(-2)}`;
+  }
+
+  revenue12mTotal = computed(() => (this.stats()?.monthlyRevenue ?? []).reduce((s, m) => s + m.revenue, 0));
+
+  monthlyRevenueData = computed<ChartConfiguration<'bar'>['data']>(() => {
+    const months = this.stats()?.monthlyRevenue ?? [];
+    const colors = months.map((_, i) =>
+      i === months.length - 1 ? '#B88577' : '#E0C8BF'   // mois en cours surligné
+    );
+    return {
+      labels: months.map(m => this.monthLabel(m.year, m.month)),
+      datasets: [
+        {
+          label: 'Revenu (MAD)',
+          data: months.map(m => m.revenue),
+          backgroundColor: colors,
+          borderRadius: 6,
+          borderSkipped: false,
+          yAxisID: 'y'
+        }
+      ]
+    };
+  });
+
+  monthlyRevenueOpts: ChartConfiguration<'bar'>['options'] = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${Number(ctx.parsed.y).toFixed(2)} MAD`,
+          afterLabel: (ctx) => {
+            const months = (ctx.chart.data.datasets[0] as { _orderCounts?: number[] })._orderCounts;
+            return months ? `${months[ctx.dataIndex] ?? 0} commande(s)` : '';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: '#8B7068', callback: v => `${v} DH` }, grid: { color: '#F0DDD7' } },
+      x: { grid: { display: false }, ticks: { color: '#8B7068' } }
+    }
+  };
+
   // ============ Lifecycle ============
   constructor() {
     this.api.get<PagedResult<OrderList>>('/admin/orders', { page: 1, pageSize: 200 }).subscribe({
@@ -640,9 +893,20 @@ export class DashboardComponent {
     this.api.get<PagedResult<ProductListItem>>('/admin/products', { page: 1, pageSize: 200, includeInactive: false }).subscribe({
       next: r => this.products.set(r.items)
     });
+    this.loadStats();
   }
 
-  setRange(d: number) { this.range.set(d); }
+  private loadStats() {
+    this.api.get<DashboardStats>('/admin/stats/dashboard', { days: this.range(), topCount: 10 }).subscribe({
+      next: s => this.stats.set(s),
+      error: () => {}
+    });
+  }
+
+  setRange(d: number) {
+    this.range.set(d);
+    this.loadStats();   // recharge top produits + catégories avec la nouvelle période
+  }
 
   statusClass(s: string): string {
     return ({

@@ -4,6 +4,7 @@ using Homaid.Application.Interfaces.Customers;
 using Homaid.Application.Interfaces.Notifications;
 using Homaid.Application.Interfaces.Orders;
 using Homaid.Application.Interfaces.Shipping;
+using Homaid.Application.Interfaces.Stats;
 using Homaid.Infrastructure.Identity;
 using Homaid.Infrastructure.Persistence;
 using Homaid.Infrastructure.Services.Catalog;
@@ -11,6 +12,7 @@ using Homaid.Infrastructure.Services.Customers;
 using Homaid.Infrastructure.Services.Notifications;
 using Homaid.Infrastructure.Services.Orders;
 using Homaid.Infrastructure.Services.Shipping;
+using Homaid.Infrastructure.Services.Stats;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IOrderNumberGenerator, OrderNumberGenerator>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IShippingService, ShippingService>();
+        services.AddScoped<IStatsService, StatsService>();
 
         services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.Section));
         services.Configure<WebPushOptions>(configuration.GetSection(WebPushOptions.Section));
