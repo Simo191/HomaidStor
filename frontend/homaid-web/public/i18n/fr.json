@@ -131,7 +131,10 @@
     "authentic": "100% authentique",
     "authentic_sub": "Produits garantis",
     "return": "Retour 7 jours",
-    "return_sub": "Satisfait ou remboursé"
+    "return_sub": "Satisfait ou remboursé",
+    "not_found": "Produit introuvable.",
+    "reviews_coming_soon": "Fonctionnalité avis clients à venir prochainement",
+    "link_copied": "Lien copié dans le presse-papier"
   },
   "cart": {
     "title": "Mon panier",

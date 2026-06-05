@@ -131,7 +131,10 @@
     "authentic": "100% authentic",
     "authentic_sub": "Guaranteed products",
     "return": "7-day return",
-    "return_sub": "Satisfied or refunded"
+    "return_sub": "Satisfied or refunded",
+    "not_found": "Product not found.",
+    "reviews_coming_soon": "Customer reviews feature coming soon",
+    "link_copied": "Link copied to clipboard"
   },
   "cart": {
     "title": "My cart",

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProductDetail, ProductImage, ProductListItem } from '../../core/models/catalog.models';
 import { CartService } from '../../core/services/cart.service';
 import { CatalogService } from '../../core/services/catalog.service';
@@ -11,15 +12,15 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, TranslatePipe],
   template: `
 @if (loading()) {
   <div class="container my-5 text-center"><div class="spinner-border text-primary"></div></div>
 } @else if (!product()) {
   <div class="container my-5">
     <div class="alert text-center" style="background:var(--velisse-rose-light); color:var(--velisse-brown); border:none">
-      <i class="bi bi-exclamation-circle me-2"></i>Produit introuvable.
-      <a routerLink="/catalog" class="alert-link ms-2" style="color:var(--velisse-rose-gold)">Retour au catalogue</a>
+      <i class="bi bi-exclamation-circle me-2"></i>{{ 'product.not_found' | translate }}
+      <a routerLink="/catalog" class="alert-link ms-2" style="color:var(--velisse-rose-gold)">{{ 'cart.browse_catalog' | translate }}</a>
     </div>
   </div>
 } @else {
@@ -28,8 +29,8 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     <!-- Breadcrumb -->
     <nav class="mb-3 mb-md-4">
       <ol class="breadcrumb small mb-0" style="background:transparent">
-        <li class="breadcrumb-item"><a routerLink="/" style="color:var(--velisse-muted)">Accueil</a></li>
-        <li class="breadcrumb-item d-none d-md-block"><a routerLink="/catalog" style="color:var(--velisse-muted)">Catalogue</a></li>
+        <li class="breadcrumb-item"><a routerLink="/" style="color:var(--velisse-muted)">{{ 'nav.home' | translate }}</a></li>
+        <li class="breadcrumb-item d-none d-md-block"><a routerLink="/catalog" style="color:var(--velisse-muted)">{{ 'nav.catalog' | translate }}</a></li>
         <li class="breadcrumb-item">
           <a [routerLink]="['/catalog']" [queryParams]="{ category: product()!.categorySlug }" style="color:var(--velisse-muted)">
             {{ product()!.categoryName }}
@@ -50,7 +51,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           }
           <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
             @if (discount() > 0) { <span class="badge bg-sale">-{{ discount() }}%</span> }
-            @if (!product()!.isInStock) { <span class="badge bg-dark">Rupture</span> }
+            @if (!product()!.isInStock) { <span class="badge bg-dark">{{ 'product.out_of_stock' | translate }}</span> }
           </div>
         </div>
         @if (product()!.images.length > 1) {
@@ -76,7 +77,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
             <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
           </span>
           <a href="#reviews" style="color:var(--velisse-muted); text-decoration:none" (click)="scrollToReviews($event)">
-            (Soyez le premier à donner votre avis)
+            {{ 'product.rate_first' | translate }}
           </a>
         </div>
 
@@ -91,7 +92,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           <span class="price-main">{{ product()!.basePrice | money:product()!.currency }}</span>
           @if (product()!.compareAtPrice && product()!.compareAtPrice! > product()!.basePrice) {
             <span class="price-old">{{ product()!.compareAtPrice! | money:product()!.currency }}</span>
-            <span class="badge bg-sale">Économisez {{ discount() }}%</span>
+            <span class="badge bg-sale">{{ 'product.discount' | translate }} {{ discount() }}%</span>
           }
         </div>
 
@@ -99,46 +100,46 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
         <p class="mb-3 small">
           @if (product()!.isInStock) {
             <i class="bi bi-check-circle-fill" style="color:var(--velisse-rose-gold)"></i>
-            <span class="ms-1"><strong>En stock</strong> · {{ product()!.stockQuantity }} disponibles</span>
+            <span class="ms-1"><strong>{{ 'product.in_stock' | translate }}</strong> · {{ product()!.stockQuantity }} {{ 'product.available_qty' | translate }}</span>
           } @else {
             <i class="bi bi-x-circle-fill text-danger"></i>
-            <span class="ms-1 text-danger"><strong>Rupture de stock</strong></span>
+            <span class="ms-1 text-danger"><strong>{{ 'product.out_of_stock' | translate }}</strong></span>
           }
         </p>
 
         <p class="small" style="color:var(--velisse-muted)">
-          Référence : <code style="color:var(--velisse-brown)">{{ product()!.sku }}</code>
+          {{ 'product.reference' | translate }} : <code style="color:var(--velisse-brown)">{{ product()!.sku }}</code>
         </p>
 
         <!-- Quantity + Add -->
         @if (product()!.isInStock) {
           <div class="d-flex gap-2 my-4 align-items-stretch flex-wrap">
             <div class="qty-control qty-control-lg">
-              <button type="button" class="qty-btn" (click)="dec()" aria-label="Diminuer">−</button>
+              <button type="button" class="qty-btn" (click)="dec()" aria-label="-">−</button>
               <input type="number" class="qty-input" [(ngModel)]="quantity" min="1" [max]="product()!.stockQuantity">
-              <button type="button" class="qty-btn" (click)="inc()" aria-label="Augmenter">+</button>
+              <button type="button" class="qty-btn" (click)="inc()" aria-label="+">+</button>
             </div>
             <button class="btn btn-primary flex-grow-1 btn-uppercase" (click)="addToCart()">
-              <i class="bi bi-bag-plus me-2"></i> Ajouter au panier
+              <i class="bi bi-bag-plus me-2"></i> {{ 'product.add_to_cart' | translate }}
             </button>
           </div>
           <button class="btn btn-dark w-100 btn-uppercase mb-3" (click)="buyNow()">
-            <i class="bi bi-lightning-charge me-2"></i> Acheter maintenant
+            <i class="bi bi-lightning-charge me-2"></i> {{ 'product.buy_now' | translate }}
           </button>
         }
 
         <!-- Wishlist + share -->
         <div class="d-flex gap-3 small mb-3">
-          <button class="btn-link-soft"><i class="bi bi-heart me-1"></i> Ajouter aux favoris</button>
-          <button class="btn-link-soft" (click)="share()"><i class="bi bi-share me-1"></i> Partager</button>
+          <button class="btn-link-soft"><i class="bi bi-heart me-1"></i> {{ 'product.add_to_favorites' | translate }}</button>
+          <button class="btn-link-soft" (click)="share()"><i class="bi bi-share me-1"></i> {{ 'product.share' | translate }}</button>
         </div>
 
         <!-- Garanties -->
         <div class="row g-2 mt-3">
-          <div class="col-6"><div class="usp-tile"><i class="bi bi-truck"></i><div><strong>Livraison rapide</strong><br><small>2-5j au Maroc</small></div></div></div>
-          <div class="col-6"><div class="usp-tile"><i class="bi bi-cash-coin"></i><div><strong>Paiement livraison</strong><br><small>Cash COD</small></div></div></div>
-          <div class="col-6"><div class="usp-tile"><i class="bi bi-shield-check"></i><div><strong>100% authentique</strong><br><small>Produits garantis</small></div></div></div>
-          <div class="col-6"><div class="usp-tile"><i class="bi bi-arrow-counterclockwise"></i><div><strong>Retour 7 jours</strong><br><small>Satisfait ou remboursé</small></div></div></div>
+          <div class="col-6"><div class="usp-tile"><i class="bi bi-truck"></i><div><strong>{{ 'product.delivery_rapid' | translate }}</strong><br><small>{{ 'product.delivery_rapid_sub' | translate }}</small></div></div></div>
+          <div class="col-6"><div class="usp-tile"><i class="bi bi-cash-coin"></i><div><strong>{{ 'product.payment_cod' | translate }}</strong><br><small>{{ 'product.payment_cod_sub' | translate }}</small></div></div></div>
+          <div class="col-6"><div class="usp-tile"><i class="bi bi-shield-check"></i><div><strong>{{ 'product.authentic' | translate }}</strong><br><small>{{ 'product.authentic_sub' | translate }}</small></div></div></div>
+          <div class="col-6"><div class="usp-tile"><i class="bi bi-arrow-counterclockwise"></i><div><strong>{{ 'product.return' | translate }}</strong><br><small>{{ 'product.return_sub' | translate }}</small></div></div></div>
         </div>
       </div>
     </div>
@@ -148,17 +149,17 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
       <ul class="nav nav-tabs flex-nowrap" style="overflow-x:auto">
         <li class="nav-item">
           <button class="nav-link" [class.active]="activeTab() === 'desc'" (click)="activeTab.set('desc')">
-            <i class="bi bi-file-text me-1"></i> Description
+            <i class="bi bi-file-text me-1"></i> {{ 'product.tab_description' | translate }}
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link" [class.active]="activeTab() === 'specs'" (click)="activeTab.set('specs')">
-            <i class="bi bi-list-ul me-1"></i> Caractéristiques
+            <i class="bi bi-list-ul me-1"></i> {{ 'product.tab_specs' | translate }}
           </button>
         </li>
         <li class="nav-item">
           <button class="nav-link" [class.active]="activeTab() === 'shipping'" (click)="activeTab.set('shipping')">
-            <i class="bi bi-truck me-1"></i> Livraison
+            <i class="bi bi-truck me-1"></i> {{ 'product.tab_shipping' | translate }}
           </button>
         </li>
       </ul>
@@ -169,15 +170,9 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
               <div style="line-height:1.8; white-space:pre-wrap">{{ product()!.description }}</div>
             } @else if (product()!.shortDescription) {
               <p>{{ product()!.shortDescription }}</p>
-              <p style="color:var(--velisse-muted)">
-                <em>Ce produit fait partie de la sélection {{ product()!.brandName || 'VELISSE' }}.
-                Pour plus d'informations, contactez-nous.</em>
-              </p>
+              <p style="color:var(--velisse-muted)"><em>{{ 'product.description_empty' | translate }}</em></p>
             } @else {
-              <p style="color:var(--velisse-muted)">
-                <em>Description détaillée à venir. Pour toute question sur ce produit, n'hésitez pas à
-                <a routerLink="/legal/contact" style="color:var(--velisse-rose-gold)">nous contacter</a>.</em>
-              </p>
+              <p style="color:var(--velisse-muted)"><em>{{ 'product.description_empty' | translate }}</em></p>
             }
           </div>
         }
@@ -186,16 +181,16 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           <div class="table-responsive">
             <table class="table">
               <tbody>
-                <tr><th style="color:var(--velisse-muted); width:35%">Référence</th><td><code>{{ product()!.sku }}</code></td></tr>
-                <tr><th style="color:var(--velisse-muted)">Catégorie</th><td>{{ product()!.categoryName }}</td></tr>
+                <tr><th style="color:var(--velisse-muted); width:35%">{{ 'product.reference' | translate }}</th><td><code>{{ product()!.sku }}</code></td></tr>
+                <tr><th style="color:var(--velisse-muted)">{{ 'product.category' | translate }}</th><td>{{ product()!.categoryName }}</td></tr>
                 @if (product()!.brandName) {
-                  <tr><th style="color:var(--velisse-muted)">Marque</th><td>{{ product()!.brandName }}</td></tr>
+                  <tr><th style="color:var(--velisse-muted)">{{ 'product.brand' | translate }}</th><td>{{ product()!.brandName }}</td></tr>
                 }
                 @if (product()!.weightKg) {
-                  <tr><th style="color:var(--velisse-muted)">Poids</th><td>{{ product()!.weightKg }} kg</td></tr>
+                  <tr><th style="color:var(--velisse-muted)">{{ 'product.weight' | translate }}</th><td>{{ product()!.weightKg }} kg</td></tr>
                 }
                 @if (product()!.barcode) {
-                  <tr><th style="color:var(--velisse-muted)">Code-barres</th><td><code>{{ product()!.barcode }}</code></td></tr>
+                  <tr><th style="color:var(--velisse-muted)">{{ 'product.barcode' | translate }}</th><td><code>{{ product()!.barcode }}</code></td></tr>
                 }
                 @for (a of attributesList(); track a.key) {
                   <tr><th style="color:var(--velisse-muted); text-transform:capitalize">{{ a.key }}</th><td>{{ a.value }}</td></tr>
@@ -207,17 +202,14 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
         @if (activeTab() === 'shipping') {
           <div>
-            <h6 class="info-h"><i class="bi bi-truck me-1"></i> Livraison</h6>
-            <p>Livraison rapide partout au Maroc en 2 à 5 jours ouvrés. Livraison express disponible.
-            International : virement bancaire préalable, expédition sous 5 à 14 jours.</p>
+            <h6 class="info-h"><i class="bi bi-truck me-1"></i> {{ 'product.shipping_title' | translate }}</h6>
+            <p>{{ 'product.shipping_text' | translate }}</p>
 
-            <h6 class="info-h mt-4"><i class="bi bi-cash-coin me-1"></i> Paiement</h6>
-            <p>Au Maroc : paiement à la livraison (cash) — pas de prépaiement.
-            À l'international : virement bancaire avant expédition (RIB envoyé par email).</p>
+            <h6 class="info-h mt-4"><i class="bi bi-cash-coin me-1"></i> {{ 'product.payment_title' | translate }}</h6>
+            <p>{{ 'product.payment_text' | translate }}</p>
 
-            <h6 class="info-h mt-4"><i class="bi bi-arrow-counterclockwise me-1"></i> Retour &amp; remboursement</h6>
-            <p>Vous disposez de 7 jours après réception pour retourner votre produit s'il ne vous convient pas
-            (produit non ouvert, dans son emballage d'origine).</p>
+            <h6 class="info-h mt-4"><i class="bi bi-arrow-counterclockwise me-1"></i> {{ 'product.return_title' | translate }}</h6>
+            <p>{{ 'product.return_text' | translate }}</p>
           </div>
         }
       </div>
@@ -227,8 +219,8 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     @if (relatedProducts().length > 0) {
       <section class="mt-5">
         <div class="section-title">
-          <div class="section-sub">À découvrir</div>
-          <h2>Vous aimerez aussi</h2>
+          <div class="section-sub">{{ 'product.related_eyebrow' | translate }}</div>
+          <h2>{{ 'product.related_title' | translate }}</h2>
           <div class="section-line"><span class="line"></span><i class="bi bi-flower2"></i><span class="line"></span></div>
         </div>
         <div class="row g-3 g-md-4">
@@ -248,7 +240,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                     <button class="btn btn-light btn-sm w-100 btn-uppercase"
                             [disabled]="!p.isInStock"
                             (click)="addRelatedToCart(p)">
-                      <i class="bi bi-bag-plus me-1"></i> Ajouter
+                      <i class="bi bi-bag-plus me-1"></i> {{ 'product.add_to_cart' | translate }}
                     </button>
                   </div>
                 </div>
@@ -274,8 +266,8 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     <!-- AVIS CLIENTS -->
     <section class="mt-5" id="reviews">
       <div class="section-title">
-        <div class="section-sub">Témoignages</div>
-        <h2>Avis Clients</h2>
+        <div class="section-sub">{{ 'product.reviews_eyebrow' | translate }}</div>
+        <h2>{{ 'product.reviews_title' | translate }}</h2>
         <div class="section-line"><span class="line"></span><i class="bi bi-flower2"></i><span class="line"></span></div>
       </div>
 
@@ -288,28 +280,24 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
             <div class="star-display mb-2" style="font-size:1.2rem">
               <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
             </div>
-            <p class="small mb-3" style="color:var(--velisse-muted)">Aucun avis pour le moment</p>
-            <button class="btn btn-outline-dark btn-uppercase" (click)="toast.info('Fonctionnalité avis clients à venir prochainement')">
-              <i class="bi bi-pencil me-1"></i> Écrire un avis
+            <p class="small mb-3" style="color:var(--velisse-muted)">{{ 'product.no_reviews' | translate }}</p>
+            <button class="btn btn-outline-dark btn-uppercase" (click)="notifyReviewsSoon()">
+              <i class="bi bi-pencil me-1"></i> {{ 'product.write_review' | translate }}
             </button>
           </div>
         </div>
         <div class="col-md-7">
           <div class="reviews-list p-4">
-            <h6 class="info-h mb-3">Répartition des notes</h6>
+            <h6 class="info-h mb-3">{{ 'product.review_distribution' | translate }}</h6>
             @for (star of [5,4,3,2,1]; track star) {
               <div class="d-flex align-items-center gap-2 mb-2">
-                <span style="min-width:60px; font-size:.85rem">{{ star }} étoile{{ star > 1 ? 's' : '' }}</span>
+                <span style="min-width:60px; font-size:.85rem">{{ star }} {{ (star > 1 ? 'product.stars_plural' : 'product.stars') | translate }}</span>
                 <div class="progress flex-grow-1" style="height:8px; background:var(--velisse-rose-bg)">
                   <div class="progress-bar" style="background:var(--velisse-rose-gold); width:0%"></div>
                 </div>
                 <span style="min-width:30px; font-size:.85rem; color:var(--velisse-muted); text-align:right">0</span>
               </div>
             }
-            <p class="small mt-3 mb-0" style="color:var(--velisse-muted)">
-              <i class="bi bi-info-circle me-1"></i>
-              Les avis clients seront affichés ici dès qu'ils seront publiés.
-            </p>
           </div>
         </div>
       </div>
@@ -337,7 +325,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
         </div>
         <button class="btn btn-primary btn-uppercase" (click)="addToCart()">
           <i class="bi bi-bag-plus me-1"></i>
-          <span class="d-none d-md-inline">Ajouter au panier</span>
+          <span class="d-none d-md-inline">{{ 'product.add_to_cart' | translate }}</span>
         </button>
       </div>
     </div>
@@ -442,6 +430,7 @@ export class ProductDetailComponent {
   readonly toast = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   product = signal<ProductDetail | null>(null);
   selectedImage = signal<ProductImage | null>(null);
@@ -511,12 +500,12 @@ export class ProductDetailComponent {
     const p = this.product();
     if (!p) return;
     this.cart.add(p, this.quantity);
-    this.toast.success(`${this.quantity} × ${p.name} ajouté au panier`);
+    this.toast.success(`${this.quantity} × ${p.name} ${this.translate.instant('cart.added')}`);
   }
 
   addRelatedToCart(p: ProductListItem): void {
     this.cart.add(p);
-    this.toast.success(`${p.name} ajouté au panier`);
+    this.toast.success(`${p.name} ${this.translate.instant('cart.added')}`);
   }
 
   buyNow(): void {
@@ -529,13 +518,17 @@ export class ProductDetailComponent {
     document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  notifyReviewsSoon(): void {
+    this.toast.info(this.translate.instant('product.reviews_coming_soon'));
+  }
+
   share(): void {
     const url = window.location.href;
     const title = this.product()?.name ?? 'Velisse';
     if ((navigator as Navigator & { share?: (data: { title?: string; url?: string }) => Promise<void> }).share) {
       (navigator as Navigator & { share: (data: { title?: string; url?: string }) => Promise<void> }).share({ title, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(url).then(() => this.toast.success('Lien copié dans le presse-papier'));
+      navigator.clipboard.writeText(url).then(() => this.toast.success(this.translate.instant('product.link_copied')));
     }
   }
 }
