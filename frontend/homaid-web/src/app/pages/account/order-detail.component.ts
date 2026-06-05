@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { OrderDetail, OrderStatus } from '../../core/models/order.models';
 import { ApiException } from '../../core/services/api.service';
 import { OrderService } from '../../core/services/order.service';
@@ -11,22 +12,22 @@ import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes
 @Component({
   selector: 'app-account-order-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, PaymentStatusLabelPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, OrderStatusLabelPipe, PaymentStatusLabelPipe, TranslatePipe],
   template: `
 @if (loading()) {
   <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
 } @else if (!order()) {
-  <div class="alert alert-warning">Commande introuvable.</div>
+  <div class="alert alert-warning">{{ 'account.order_not_found' | translate }}</div>
 } @else {
 <div class="card mb-3">
   <div class="card-header bg-white d-flex justify-content-between">
-    <strong>Commande <code>{{ order()!.orderNumber }}</code></strong>
+    <strong>{{ 'success.your_order' | translate }} <code>{{ order()!.orderNumber }}</code></strong>
     <span class="badge" [ngClass]="statusClass(order()!.status)">{{ order()!.status | orderStatusLabel }}</span>
   </div>
   <div class="card-body">
     <div class="row">
       <div class="col-md-6">
-        <h6>Adresse de livraison</h6>
+        <h6>{{ 'account.shipping_address' | translate }}</h6>
         <address class="small">
           {{ order()!.shippingAddress.fullName }}<br>
           {{ order()!.shippingAddress.street }}
@@ -37,17 +38,17 @@ import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes
         </address>
       </div>
       <div class="col-md-6">
-        <h6>Paiement</h6>
+        <h6>{{ 'account.payment' | translate }}</h6>
         <p class="small mb-1">
           @if (order()!.paymentMethod === 'CashOnDelivery') {
-            <i class="bi bi-cash-coin"></i> À la livraison
+            <i class="bi bi-cash-coin"></i> {{ 'account.at_delivery' | translate }}
           } @else {
-            <i class="bi bi-bank"></i> Virement bancaire
+            <i class="bi bi-bank"></i> {{ 'account.bank_transfer' | translate }}
           }
           · <span class="badge bg-secondary">{{ order()!.paymentStatus | paymentStatusLabel }}</span>
         </p>
         @if (order()!.shippingMethodName) {
-          <h6 class="mt-2">Livraison</h6>
+          <h6 class="mt-2">{{ 'account.shipping' | translate }}</h6>
           <p class="small">{{ order()!.shippingMethodName }}</p>
         }
       </div>
@@ -56,7 +57,7 @@ import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes
 </div>
 
 <div class="card mb-3">
-  <div class="card-header bg-white"><strong>Articles</strong></div>
+  <div class="card-header bg-white"><strong>{{ 'account.items' | translate }}</strong></div>
   <div class="card-body">
     @for (i of order()!.items; track i.id) {
       <div class="d-flex gap-2 mb-2">
@@ -65,21 +66,21 @@ import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes
         }
         <div class="flex-grow-1">
           <strong>{{ i.productName }}</strong>
-          <div class="small text-muted">SKU {{ i.productSku }} · × {{ i.quantity }}</div>
+          <div class="small text-muted">{{ 'cart.sku' | translate }} {{ i.productSku }} · × {{ i.quantity }}</div>
         </div>
         <div class="fw-bold">{{ i.lineTotal | money:order()!.currency }}</div>
       </div>
     }
     <hr>
-    <div class="d-flex justify-content-between"><span>Sous-total</span><span>{{ order()!.subtotal | money:order()!.currency }}</span></div>
-    <div class="d-flex justify-content-between"><span>Livraison</span><span>{{ order()!.shippingFee | money:order()!.currency }}</span></div>
-    <div class="d-flex justify-content-between fs-5 mt-2"><strong>Total</strong><strong class="text-primary">{{ order()!.total | money:order()!.currency }}</strong></div>
+    <div class="d-flex justify-content-between"><span>{{ 'account.subtotal' | translate }}</span><span>{{ order()!.subtotal | money:order()!.currency }}</span></div>
+    <div class="d-flex justify-content-between"><span>{{ 'account.shipping_fees' | translate }}</span><span>{{ order()!.shippingFee | money:order()!.currency }}</span></div>
+    <div class="d-flex justify-content-between fs-5 mt-2"><strong>{{ 'account.total' | translate }}</strong><strong class="text-primary">{{ order()!.total | money:order()!.currency }}</strong></div>
   </div>
 </div>
 
 <!-- Historique -->
 <div class="card mb-3">
-  <div class="card-header bg-white"><strong>Historique</strong></div>
+  <div class="card-header bg-white"><strong>{{ 'account.history' | translate }}</strong></div>
   <ul class="list-group list-group-flush">
     @for (h of order()!.statusHistory; track h.changedAt) {
       <li class="list-group-item small">
@@ -94,11 +95,11 @@ import { OrderStatusLabelPipe, PaymentStatusLabelPipe } from '../../shared/pipes
 
 @if (canCancel()) {
   <button class="btn btn-outline-danger" (click)="cancel()">
-    <i class="bi bi-x-circle"></i> Annuler la commande
+    <i class="bi bi-x-circle"></i> {{ 'account.cancel_order' | translate }}
   </button>
 }
 <a routerLink="/account/orders" class="btn btn-outline-secondary">
-  <i class="bi bi-arrow-left"></i> Retour à mes commandes
+  <i class="bi bi-arrow-left"></i> {{ 'account.back_to_orders' | translate }}
 </a>
 }
   `
@@ -108,6 +109,7 @@ export class OrderDetailAccountComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private translate = inject(TranslateService);
 
   order = signal<OrderDetail | null>(null);
   loading = signal(true);
@@ -127,12 +129,12 @@ export class OrderDetailAccountComponent {
   }
 
   cancel(): void {
-    const reason = prompt(`Motif d'annulation (optionnel)`) ?? undefined;
+    const reason = prompt(this.translate.instant('account.cancel_prompt')) ?? undefined;
     if (reason === null) return;
     const id = this.order()!.id;
     this.orders.cancelMine(id, reason).subscribe({
       next: () => {
-        this.toast.success('Commande annulée.');
+        this.toast.success(this.translate.instant('account.order_cancelled'));
         this.orders.getMine(id).subscribe(o => this.order.set(o));
       },
       error: (e: ApiException) => this.toast.error(e.message)
