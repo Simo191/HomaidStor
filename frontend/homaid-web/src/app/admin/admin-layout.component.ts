@@ -3,11 +3,12 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ApiService } from '../core/services/api.service';
 import { AuthService } from '../core/services/auth.service';
+import { ToastContainerComponent } from '../layout/toast-container.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ToastContainerComponent],
   template: `
 <div class="admin-container">
   <!-- Sidebar -->
@@ -136,6 +137,7 @@ import { AuthService } from '../core/services/auth.service';
     </main>
   </div>
 </div>
+<app-toasts></app-toasts>
   `,
   styles: [`
     :host {
