@@ -56,11 +56,11 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                 <span class="fw-semibold" style="color:var(--velisse-rose-gold)">{{ line.unitPrice | money:line.currency }}</span>
               </div>
               <div class="col-7 col-md-3">
-                <div class="input-group input-group-sm">
-                  <button class="btn btn-outline-dark" (click)="setQty(line.productId, line.quantity - 1)">−</button>
-                  <input type="number" class="form-control text-center" [ngModel]="line.quantity"
+                <div class="qty-control">
+                  <button type="button" class="qty-btn" (click)="setQty(line.productId, line.quantity - 1)">−</button>
+                  <input type="number" class="qty-input" [ngModel]="line.quantity"
                          (ngModelChange)="setQty(line.productId, $event)" min="1" [max]="line.stockQuantity || 999">
-                  <button class="btn btn-outline-dark" (click)="setQty(line.productId, line.quantity + 1)">+</button>
+                  <button type="button" class="qty-btn" (click)="setQty(line.productId, line.quantity + 1)">+</button>
                 </div>
                 @if (line.stockQuantity && line.quantity >= line.stockQuantity) {
                   <small class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Stock max</small>

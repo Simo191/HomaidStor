@@ -306,6 +306,41 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 .15rem rgba(184, 133, 119, .15);
 }
 
+// -- Quantity picker (custom, ne pas utiliser input-group qui wrappe avec max-width) --
+.qty-control {
+  display: inline-flex; align-items: stretch;
+  border: 1px solid var(--velisse-border); background: #fff;
+  width: fit-content; height: 42px;
+}
+.qty-btn {
+  background: #fff; border: none;
+  width: 38px; min-width: 38px;
+  font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--velisse-text);
+  transition: background .15s, color .15s;
+  padding: 0;
+}
+.qty-btn:hover { background: var(--velisse-rose-bg); color: var(--velisse-rose-gold); }
+.qty-btn:focus { outline: none; background: var(--velisse-rose-bg); }
+.qty-input {
+  border: none;
+  border-left: 1px solid var(--velisse-border);
+  border-right: 1px solid var(--velisse-border);
+  width: 50px; text-align: center; font-weight: 500;
+  background: #fff; color: var(--velisse-text);
+  -moz-appearance: textfield;
+}
+.qty-input:focus { outline: none; background: var(--velisse-rose-bg); }
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.qty-control-lg { height: 48px; }
+.qty-control-lg .qty-btn { width: 42px; min-width: 42px; font-size: 1.25rem; }
+.qty-control-lg .qty-input { width: 56px; }
+
+.qty-control-sm { height: 36px; }
+.qty-control-sm .qty-btn { width: 30px; min-width: 30px; font-size: 1rem; }
+.qty-control-sm .qty-input { width: 38px; font-size: .9rem; }
+
 // -- Auth card --
 .auth-card {
   border: 1px solid var(--velisse-border); border-radius: 6px;

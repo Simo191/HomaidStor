@@ -113,10 +113,10 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
         <!-- Quantity + Add -->
         @if (product()!.isInStock) {
           <div class="d-flex gap-2 my-4 align-items-stretch flex-wrap">
-            <div class="input-group" style="max-width:140px">
-              <button class="btn btn-outline-dark" type="button" (click)="dec()">−</button>
-              <input type="number" class="form-control text-center" [(ngModel)]="quantity" min="1" [max]="product()!.stockQuantity">
-              <button class="btn btn-outline-dark" type="button" (click)="inc()">+</button>
+            <div class="qty-control qty-control-lg">
+              <button type="button" class="qty-btn" (click)="dec()" aria-label="Diminuer">−</button>
+              <input type="number" class="qty-input" [(ngModel)]="quantity" min="1" [max]="product()!.stockQuantity">
+              <button type="button" class="qty-btn" (click)="inc()" aria-label="Augmenter">+</button>
             </div>
             <button class="btn btn-primary flex-grow-1 btn-uppercase" (click)="addToCart()">
               <i class="bi bi-bag-plus me-2"></i> Ajouter au panier
@@ -330,10 +330,10 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
             {{ product()!.basePrice | money:product()!.currency }}
           </div>
         </div>
-        <div class="input-group d-none d-md-flex" style="max-width:120px">
-          <button class="btn btn-sm btn-outline-dark" (click)="dec()">−</button>
-          <input type="number" class="form-control form-control-sm text-center" [(ngModel)]="quantity" min="1">
-          <button class="btn btn-sm btn-outline-dark" (click)="inc()">+</button>
+        <div class="qty-control qty-control-sm d-none d-md-inline-flex">
+          <button type="button" class="qty-btn" (click)="dec()">−</button>
+          <input type="number" class="qty-input" [(ngModel)]="quantity" min="1">
+          <button type="button" class="qty-btn" (click)="inc()">+</button>
         </div>
         <button class="btn btn-primary btn-uppercase" (click)="addToCart()">
           <i class="bi bi-bag-plus me-1"></i>
