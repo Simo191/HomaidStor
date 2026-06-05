@@ -136,6 +136,13 @@
     "reviews_coming_soon": "Customer reviews feature coming soon",
     "link_copied": "Link copied to clipboard"
   },
+  "brands": {
+    "eyebrow": "Discover",
+    "title": "Our Brands",
+    "subtitle": "An exclusive selection of authentic brands.",
+    "empty": "No brand at the moment.",
+    "products_count": "products"
+  },
   "catalog": {
     "filters": "Filters",
     "search": "Search",

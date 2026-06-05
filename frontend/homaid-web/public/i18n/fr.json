@@ -136,6 +136,13 @@
     "reviews_coming_soon": "Fonctionnalité avis clients à venir prochainement",
     "link_copied": "Lien copié dans le presse-papier"
   },
+  "brands": {
+    "eyebrow": "Découvrir",
+    "title": "Nos Marques",
+    "subtitle": "Une sélection exclusive de marques authentiques.",
+    "empty": "Aucune marque pour l'instant.",
+    "products_count": "produits"
+  },
   "catalog": {
     "filters": "Filtres",
     "search": "Recherche",

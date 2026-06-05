@@ -1,27 +1,28 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Brand } from '../../core/models/catalog.models';
 import { CatalogService } from '../../core/services/catalog.service';
 
 @Component({
   selector: 'app-brands',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   template: `
 <div class="container my-4 my-md-5">
   <!-- Page title -->
   <div class="text-center mb-5">
     <div class="section-sub" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
-      Découvrir
+      {{ 'brands.eyebrow' | translate }}
     </div>
-    <h1 style="font-size:clamp(2rem, 3vw, 2.75rem); font-weight:500; margin-top:.5rem">Nos Marques</h1>
+    <h1 style="font-size:clamp(2rem, 3vw, 2.75rem); font-weight:500; margin-top:.5rem">{{ 'brands.title' | translate }}</h1>
     <div class="d-inline-flex align-items-center gap-2 mt-2" style="color:var(--velisse-rose-gold)">
       <span style="width:40px; height:1px; background:var(--velisse-rose-gold); display:inline-block"></span>
       <i class="bi bi-flower2"></i>
       <span style="width:40px; height:1px; background:var(--velisse-rose-gold); display:inline-block"></span>
     </div>
-    <p class="mt-3" style="color:var(--velisse-muted)">Une sélection exclusive de marques authentiques.</p>
+    <p class="mt-3" style="color:var(--velisse-muted)">{{ 'brands.subtitle' | translate }}</p>
   </div>
 
   @if (loading()) {
@@ -29,7 +30,7 @@ import { CatalogService } from '../../core/services/catalog.service';
   } @else if (brands().length === 0) {
     <div class="text-center py-5" style="color:var(--velisse-muted)">
       <i class="bi bi-bookmark-x display-3"></i>
-      <p class="mt-3">Aucune marque pour l'instant.</p>
+      <p class="mt-3">{{ 'brands.empty' | translate }}</p>
     </div>
   } @else {
     <div class="row g-4">
@@ -46,7 +47,7 @@ import { CatalogService } from '../../core/services/catalog.service';
             </div>
             <div class="brand-info">
               <div class="brand-name">{{ b.name }}</div>
-              <small style="color:var(--velisse-muted)">{{ b.productCount }} produits</small>
+              <small style="color:var(--velisse-muted)">{{ b.productCount }} {{ 'brands.products_count' | translate }}</small>
             </div>
           </a>
         </div>
