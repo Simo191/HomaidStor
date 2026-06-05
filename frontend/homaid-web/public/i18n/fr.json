@@ -253,7 +253,11 @@
     "login_link": "Se connecter",
     "fields_required": "Merci de compléter tous les champs.",
     "credentials_invalid": "Identifiants incorrects.",
-    "register_failed": "Inscription impossible."
+    "register_failed": "Inscription impossible.",
+    "email_password_required": "Email et mot de passe requis.",
+    "welcome_back_user": "Bienvenue {{name}} !",
+    "oauth_not_configured": "Login {{provider}} : configurer OAuth dans appsettings.",
+    "or_divider": "ou"
   },
   "account": {
     "section_title": "Mon compte",

@@ -253,7 +253,11 @@
     "login_link": "تسجيل الدخول",
     "fields_required": "يرجى ملء جميع الحقول.",
     "credentials_invalid": "بيانات الاعتماد غير صحيحة.",
-    "register_failed": "تعذر التسجيل."
+    "register_failed": "تعذر التسجيل.",
+    "email_password_required": "البريد الإلكتروني وكلمة المرور مطلوبان.",
+    "welcome_back_user": "مرحباً {{name}}!",
+    "oauth_not_configured": "تسجيل الدخول عبر {{provider}}: قم بتكوين OAuth في الإعدادات.",
+    "or_divider": "أو"
   },
   "account": {
     "section_title": "حسابي",
