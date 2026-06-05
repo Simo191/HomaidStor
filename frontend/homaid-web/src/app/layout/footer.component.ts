@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
 <footer class="main-footer">
   <div class="container">
@@ -16,9 +17,7 @@ import { RouterLink } from '@angular/router';
         <div class="brand-tagline mb-3" style="font-size:.65rem; letter-spacing:.3em; color:var(--velisse-rose-gold); text-transform:uppercase">
           Skincare · Beauty · Care
         </div>
-        <p class="small" style="line-height:1.7">
-          Parapharmacie &amp; Korean skincare — produits authentiques sélectionnés avec soin. Livraison partout au Maroc, paiement à la livraison.
-        </p>
+        <p class="small" style="line-height:1.7">{{ 'footer.tagline' | translate }}</p>
         <div class="d-flex gap-2 mt-3">
           <a href="#" aria-label="Instagram" class="btn-icon-square" style="background:transparent; color:#fff; border-color:#444">
             <i class="bi bi-instagram"></i>
@@ -36,39 +35,39 @@ import { RouterLink } from '@angular/router';
       </div>
 
       <div class="col-6 col-md-2">
-        <h6>Boutique</h6>
+        <h6>{{ 'footer.shop' | translate }}</h6>
         <ul class="list-unstyled">
-          <li class="mb-2"><a routerLink="/">Accueil</a></li>
-          <li class="mb-2"><a routerLink="/catalog">Catalogue</a></li>
-          <li class="mb-2"><a [routerLink]="['/catalog']" [queryParams]="{ featured: true }">Promos</a></li>
-          <li class="mb-2"><a routerLink="/cart">Panier</a></li>
+          <li class="mb-2"><a routerLink="/">{{ 'nav.home' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/catalog">{{ 'nav.catalog' | translate }}</a></li>
+          <li class="mb-2"><a [routerLink]="['/catalog']" [queryParams]="{ featured: true }">{{ 'nav.promos' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/cart">{{ 'header.cart' | translate }}</a></li>
         </ul>
       </div>
 
       <div class="col-6 col-md-3">
-        <h6>Mon compte</h6>
+        <h6>{{ 'footer.my_account' | translate }}</h6>
         <ul class="list-unstyled">
-          <li class="mb-2"><a routerLink="/account">Mon profil</a></li>
-          <li class="mb-2"><a routerLink="/account/orders">Mes commandes</a></li>
-          <li class="mb-2"><a routerLink="/login">Connexion</a></li>
-          <li class="mb-2"><a routerLink="/register">Créer un compte</a></li>
+          <li class="mb-2"><a routerLink="/account">{{ 'header.my_profile' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/account/orders">{{ 'header.my_orders' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/login">{{ 'auth.login_title' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/register">{{ 'auth.create_account' | translate }}</a></li>
         </ul>
       </div>
 
       <div class="col-md-3">
-        <h6>Aide & Légal</h6>
+        <h6>{{ 'footer.help_legal' | translate }}</h6>
         <ul class="list-unstyled">
-          <li class="mb-2"><a routerLink="/legal/contact"><i class="bi bi-envelope me-1"></i> Contactez-nous</a></li>
-          <li class="mb-2"><a routerLink="/legal/cgv">CGV</a></li>
-          <li class="mb-2"><a routerLink="/legal/privacy">Politique de confidentialité</a></li>
-          <li class="mb-2"><a routerLink="/legal/cookies">Cookies</a></li>
+          <li class="mb-2"><a routerLink="/legal/contact"><i class="bi bi-envelope me-1"></i> {{ 'footer.contact' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/legal/cgv">{{ 'footer.tos' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/legal/privacy">{{ 'footer.privacy' | translate }}</a></li>
+          <li class="mb-2"><a routerLink="/legal/cookies">{{ 'footer.cookies' | translate }}</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom d-flex justify-content-between flex-wrap gap-2">
-      <span>&copy; {{ year }} Velisse · Tous droits réservés</span>
-      <span>Conforme RGPD &amp; loi 09-08 (Maroc)</span>
+      <span>&copy; {{ year }} Velisse · {{ 'footer.rights' | translate }}</span>
+      <span>{{ 'footer.compliance' | translate }}</span>
     </div>
   </div>
 </footer>

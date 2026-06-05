@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PaymentMethod, PlaceOrderRequest, ShippingMethod } from '../../core/models/order.models';
 import { ApiException } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -35,15 +36,15 @@ interface CheckoutForm {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, TranslatePipe],
   template: `
 <div class="container my-4">
-  <h1 class="h3 mb-4"><i class="bi bi-credit-card text-primary"></i> Finaliser ma commande</h1>
+  <h1 class="h3 mb-4"><i class="bi bi-credit-card text-primary"></i> {{ 'checkout.title' | translate }}</h1>
 
   @if (cart.isEmpty()) {
     <div class="alert alert-warning">
-      <i class="bi bi-cart-x me-2"></i>Votre panier est vide.
-      <a routerLink="/catalog" class="alert-link">Retour au catalogue</a>
+      <i class="bi bi-cart-x me-2"></i>{{ 'cart.empty_title' | translate }}.
+      <a routerLink="/catalog" class="alert-link">{{ 'cart.browse_catalog' | translate }}</a>
     </div>
   } @else {
     <form #f="ngForm" (ngSubmit)="submit(f)" novalidate>
@@ -55,39 +56,37 @@ interface CheckoutForm {
           <!-- Bandeau invité/client -->
           @if (!auth.isAuthenticated()) {
             <div class="alert alert-info d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-info-circle me-2"></i>
-                Vous commandez en tant qu'<strong>invité</strong> — pas besoin de créer un compte.
-              </span>
+              <span><i class="bi bi-info-circle me-2"></i>{{ 'checkout.guest_info' | translate }}</span>
               <a routerLink="/login" [queryParams]="{ returnUrl: '/checkout' }" class="btn btn-sm btn-outline-primary">
-                Se connecter
+                {{ 'checkout.login_link' | translate }}
               </a>
             </div>
           } @else {
             <div class="alert alert-success">
               <i class="bi bi-person-check me-2"></i>
-              Connecté en tant que <strong>{{ auth.user()?.fullName }}</strong> ({{ auth.user()?.email }})
+              {{ 'checkout.logged_in_as' | translate }} <strong>{{ auth.user()?.fullName }}</strong> ({{ auth.user()?.email }})
             </div>
           }
 
           <!-- 1. Contact -->
           <div class="card mb-3">
-            <div class="card-header bg-white"><strong>1. Vos coordonnées</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.step_contact' | translate }}</strong></div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-6">
-                  <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.first_name' | translate }} <span class="text-danger">*</span></label>
                   <input type="text" name="firstName" class="form-control" [(ngModel)]="form.firstName" required maxlength="80">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Nom <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.last_name' | translate }} <span class="text-danger">*</span></label>
                   <input type="text" name="lastName" class="form-control" [(ngModel)]="form.lastName" required maxlength="80">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Email <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.email' | translate }} <span class="text-danger">*</span></label>
                   <input type="email" name="email" class="form-control" [(ngModel)]="form.email" required email>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.phone' | translate }} <span class="text-danger">*</span></label>
                   <input type="tel" name="phone" class="form-control" [(ngModel)]="form.phone" required maxlength="30"
                          placeholder="+212 6 00 00 00 00">
                 </div>
@@ -97,33 +96,33 @@ interface CheckoutForm {
 
           <!-- 2. Adresse -->
           <div class="card mb-3">
-            <div class="card-header bg-white"><strong>2. Adresse de livraison</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.step_address' | translate }}</strong></div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-8">
-                  <label class="form-label">Adresse <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.address' | translate }} <span class="text-danger">*</span></label>
                   <input type="text" name="street" class="form-control" [(ngModel)]="form.street" required
-                         placeholder="N°, rue, quartier">
+                         [placeholder]="'checkout.address_placeholder' | translate">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Complément</label>
+                  <label class="form-label">{{ 'checkout.complement' | translate }}</label>
                   <input type="text" name="streetComplement" class="form-control" [(ngModel)]="form.streetComplement"
-                         placeholder="Appt, étage...">
+                         [placeholder]="'checkout.complement_placeholder' | translate">
                 </div>
                 <div class="col-md-5">
-                  <label class="form-label">Ville <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.city' | translate }} <span class="text-danger">*</span></label>
                   <input type="text" name="city" class="form-control" [(ngModel)]="form.city" required>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Région</label>
+                  <label class="form-label">{{ 'checkout.region' | translate }}</label>
                   <input type="text" name="region" class="form-control" [(ngModel)]="form.region">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Code postal</label>
+                  <label class="form-label">{{ 'checkout.postal_code' | translate }}</label>
                   <input type="text" name="postalCode" class="form-control" [(ngModel)]="form.postalCode">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Pays <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ 'checkout.country' | translate }} <span class="text-danger">*</span></label>
                   <select name="countryCode" class="form-select" [(ngModel)]="form.countryCode"
                           (ngModelChange)="onCountryChange($event)" required>
                     <option value="MA">🇲🇦 Maroc</option>
@@ -142,12 +141,12 @@ interface CheckoutForm {
 
           <!-- 3. Livraison -->
           <div class="card mb-3">
-            <div class="card-header bg-white"><strong>3. Mode de livraison</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.step_shipping' | translate }}</strong></div>
             <div class="card-body">
               @if (loadingMethods()) {
                 <div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>
               } @else if (shippingMethods().length === 0) {
-                <div class="alert alert-warning mb-0">Aucun mode de livraison disponible pour ce pays.</div>
+                <div class="alert alert-warning mb-0">{{ 'checkout.no_shipping' | translate }}</div>
               } @else {
                 @for (m of shippingMethods(); track m.id) {
                   <div class="form-check border rounded p-3 mb-2 shipping-option"
@@ -158,11 +157,11 @@ interface CheckoutForm {
                     <label class="form-check-label d-flex justify-content-between align-items-center w-100" [for]="'ship-' + m.id">
                       <span>
                         <strong>{{ m.name }}</strong>
-                        <small class="d-block text-muted">{{ m.estimatedMinDays }}-{{ m.estimatedMaxDays }} jours ouvrés</small>
+                        <small class="d-block text-muted">{{ m.estimatedMinDays }}-{{ m.estimatedMaxDays }} {{ 'checkout.estimate' | translate }}</small>
                       </span>
                       <span class="fw-bold text-primary">
                         @if (m.freeShippingThreshold && cart.subtotal() >= m.freeShippingThreshold) {
-                          <span class="text-success">Gratuit</span>
+                          <span class="text-success">{{ 'checkout.free' | translate }}</span>
                         } @else {
                           {{ m.baseFee | money:cart.currency() }}
                         }
@@ -176,7 +175,7 @@ interface CheckoutForm {
 
           <!-- 4. Paiement -->
           <div class="card mb-3">
-            <div class="card-header bg-white"><strong>4. Mode de paiement</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.step_payment' | translate }}</strong></div>
             <div class="card-body">
               @if (form.countryCode === 'MA') {
                 <div class="form-check border rounded p-3 mb-2"
@@ -185,8 +184,8 @@ interface CheckoutForm {
                   <input class="form-check-input" type="radio" name="paymentMethod"
                          id="pay-cod" value="CashOnDelivery" [(ngModel)]="form.paymentMethod">
                   <label class="form-check-label" for="pay-cod">
-                    <strong><i class="bi bi-cash-coin"></i> Paiement à la livraison (cash)</strong>
-                    <small class="d-block text-muted">Vous payez en espèces lorsque le livreur vous remet votre commande.</small>
+                    <strong><i class="bi bi-cash-coin"></i> {{ 'checkout.payment_cod_title' | translate }}</strong>
+                    <small class="d-block text-muted">{{ 'checkout.payment_cod_text' | translate }}</small>
                   </label>
                 </div>
               } @else {
@@ -194,21 +193,20 @@ interface CheckoutForm {
                   <input class="form-check-input" type="radio" name="paymentMethod"
                          id="pay-bank" value="BankTransfer" [(ngModel)]="form.paymentMethod" checked>
                   <label class="form-check-label" for="pay-bank">
-                    <strong><i class="bi bi-bank"></i> Virement bancaire préalable</strong>
-                    <small class="d-block text-muted">Vous recevrez par email un RIB pour effectuer le virement.
-                      Votre commande sera préparée dès réception du paiement.</small>
+                    <strong><i class="bi bi-bank"></i> {{ 'checkout.payment_bank_title' | translate }}</strong>
+                    <small class="d-block text-muted">{{ 'checkout.payment_bank_text' | translate }}</small>
                   </label>
                 </div>
               }
             </div>
           </div>
 
-          <!-- 5. Notes + opt-in compte -->
+          <!-- 5. Notes -->
           <div class="card mb-3">
-            <div class="card-header bg-white"><strong>5. Note pour la livraison (optionnel)</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.step_notes' | translate }}</strong></div>
             <div class="card-body">
               <textarea name="customerNotes" class="form-control" rows="2" [(ngModel)]="form.customerNotes"
-                        placeholder="Sonner avant de monter, livrer le matin..." maxlength="2000"></textarea>
+                        [placeholder]="'checkout.notes_placeholder' | translate" maxlength="2000"></textarea>
 
               @if (!auth.isAuthenticated()) {
                 <hr>
@@ -216,12 +214,12 @@ interface CheckoutForm {
                   <input class="form-check-input" type="checkbox" id="createAccount" name="createAccount"
                          [(ngModel)]="form.createAccount">
                   <label class="form-check-label" for="createAccount">
-                    Créer un compte avec ces informations (suivre mes commandes facilement)
+                    {{ 'checkout.create_account' | translate }}
                   </label>
                 </div>
                 @if (form.createAccount) {
                   <div class="mt-2">
-                    <label class="form-label small">Mot de passe (min. 8 caractères)</label>
+                    <label class="form-label small">{{ 'checkout.password_min' | translate }}</label>
                     <input type="password" name="password" class="form-control" [(ngModel)]="form.password"
                            minlength="8" maxlength="100" [required]="form.createAccount">
                   </div>
@@ -234,7 +232,7 @@ interface CheckoutForm {
         <!-- COL DROITE : RÉSUMÉ -->
         <div class="col-lg-4">
           <div class="card sticky-top" style="top:80px">
-            <div class="card-header bg-white"><strong>Votre commande</strong></div>
+            <div class="card-header bg-white"><strong>{{ 'checkout.your_order' | translate }}</strong></div>
             <div class="card-body">
               @for (line of cart.lines(); track line.productId) {
                 <div class="d-flex gap-2 mb-2 small">
@@ -251,14 +249,14 @@ interface CheckoutForm {
               }
               <hr>
               <div class="d-flex justify-content-between mb-1">
-                <span>Sous-total</span>
+                <span>{{ 'cart.subtotal' | translate }}</span>
                 <span>{{ cart.subtotal() | money:cart.currency() }}</span>
               </div>
               <div class="d-flex justify-content-between mb-1">
-                <span>Livraison</span>
+                <span>{{ 'cart.shipping' | translate }}</span>
                 <span>
                   @if (shippingFee() === 0 && form.shippingMethodId) {
-                    <span class="text-success">Gratuit</span>
+                    <span class="text-success">{{ 'checkout.free' | translate }}</span>
                   } @else {
                     {{ shippingFee() | money:cart.currency() }}
                   }
@@ -266,18 +264,18 @@ interface CheckoutForm {
               </div>
               <hr>
               <div class="d-flex justify-content-between mb-3">
-                <strong>Total</strong>
+                <strong>{{ 'checkout.total' | translate }}</strong>
                 <strong class="text-primary fs-5">{{ total() | money:cart.currency() }}</strong>
               </div>
               <button type="submit" class="btn btn-primary w-100" [disabled]="submitting() || !form.shippingMethodId">
                 @if (submitting()) {
-                  <span class="spinner-border spinner-border-sm me-2"></span>Envoi...
+                  <span class="spinner-border spinner-border-sm me-2"></span>{{ 'checkout.submitting' | translate }}
                 } @else {
-                  <i class="bi bi-check-circle"></i> Confirmer la commande
+                  <i class="bi bi-check-circle"></i> {{ 'checkout.submit' | translate }}
                 }
               </button>
               <p class="small text-muted text-center mt-2 mb-0">
-                <i class="bi bi-shield-lock"></i> Vos données sont protégées (RGPD + loi 09-08).
+                <i class="bi bi-shield-lock"></i> {{ 'checkout.rgpd' | translate }}
               </p>
             </div>
           </div>
@@ -299,6 +297,7 @@ export class CheckoutComponent {
   private shipping = inject(ShippingService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   shippingMethods = signal<ShippingMethod[]>([]);
   loadingMethods = signal(false);
@@ -364,12 +363,12 @@ export class CheckoutComponent {
 
   submit(f: NgForm): void {
     if (f.invalid) {
-      this.toast.error('Merci de compléter tous les champs obligatoires.');
+      this.toast.error(this.translate.instant('checkout.complete_required'));
       Object.values(f.controls).forEach(c => c.markAsTouched());
       return;
     }
     if (!this.form.shippingMethodId) {
-      this.toast.error('Sélectionnez un mode de livraison.');
+      this.toast.error(this.translate.instant('checkout.select_shipping'));
       return;
     }
 
@@ -421,7 +420,7 @@ export class CheckoutComponent {
     this.orders.placeOrder(req).subscribe({
       next: order => {
         this.cart.clear();
-        this.toast.success(`Commande ${order.orderNumber} confirmée !`);
+        this.toast.success(this.translate.instant('checkout.order_confirmed', { number: order.orderNumber }));
         this.router.navigate(['/order-success', order.orderNumber], { state: { order } });
       },
       error: (e: ApiException) => {

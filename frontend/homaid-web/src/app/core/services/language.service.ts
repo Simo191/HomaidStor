@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 
@@ -21,11 +22,17 @@ export class LanguageService {
     this.applyToDom(this._current());
   }
 
-  set(lang: SupportedLanguage): void {
+  /** Bridge with ngx-translate (called lazily to avoid circular deps). */
+  bindToTranslate(translate: TranslateService) {
+    translate.use(this._current());
+  }
+
+  set(lang: SupportedLanguage, translate?: TranslateService): void {
     if (!environment.supportedLanguages.includes(lang)) return;
     this._current.set(lang);
     this.storage.set(STORAGE_KEY, lang);
     this.applyToDom(lang);
+    if (translate) translate.use(lang);
   }
 
   private detectInitial(): SupportedLanguage {
