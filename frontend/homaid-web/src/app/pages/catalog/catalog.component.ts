@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PagedResult } from '../../core/models/api.models';
 import { Brand, CategoryListItem, ProductListItem, ProductListQuery } from '../../core/models/catalog.models';
 import { CartService } from '../../core/services/cart.service';
@@ -12,7 +13,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, FormsModule, RouterLink, MoneyPipe, TranslatePipe],
   template: `
 <div class="container my-4">
   <div class="row g-4">
@@ -21,20 +22,21 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     <aside class="col-lg-3">
       <div class="card sticky-top" style="top:80px">
         <div class="card-body">
-          <h5 class="mb-3"><i class="bi bi-funnel-fill text-primary"></i> Filtres</h5>
+          <h5 class="mb-3"><i class="bi bi-funnel-fill text-primary"></i> {{ 'catalog.filters' | translate }}</h5>
 
           <!-- Search -->
           <div class="mb-3">
-            <label class="form-label small fw-bold">Recherche</label>
-            <input type="search" class="form-control form-control-sm" placeholder="Nom, SKU..."
+            <label class="form-label small fw-bold">{{ 'catalog.search' | translate }}</label>
+            <input type="search" class="form-control form-control-sm"
+                   [placeholder]="'catalog.search_placeholder' | translate"
                    [(ngModel)]="filters.search" (ngModelChange)="onFilterChange()">
           </div>
 
           <!-- Categories -->
           <div class="mb-3">
-            <label class="form-label small fw-bold">Catégorie</label>
+            <label class="form-label small fw-bold">{{ 'catalog.category' | translate }}</label>
             <select class="form-select form-select-sm" [(ngModel)]="filters.categorySlug" (ngModelChange)="onFilterChange()">
-              <option [ngValue]="undefined">Toutes les catégories</option>
+              <option [ngValue]="undefined">{{ 'catalog.all_categories' | translate }}</option>
               @for (c of categories(); track c.id) {
                 <option [ngValue]="c.slug">{{ c.name }} ({{ c.productCount }})</option>
               }
@@ -43,9 +45,9 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
           <!-- Brand -->
           <div class="mb-3">
-            <label class="form-label small fw-bold">Marque</label>
+            <label class="form-label small fw-bold">{{ 'catalog.brand' | translate }}</label>
             <select class="form-select form-select-sm" [(ngModel)]="filters.brandSlug" (ngModelChange)="onFilterChange()">
-              <option [ngValue]="undefined">Toutes les marques</option>
+              <option [ngValue]="undefined">{{ 'catalog.all_brands' | translate }}</option>
               @for (b of brands(); track b.id) {
                 <option [ngValue]="b.slug">{{ b.name }}</option>
               }
@@ -54,11 +56,13 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
           <!-- Price range -->
           <div class="mb-3">
-            <label class="form-label small fw-bold">Prix (MAD)</label>
+            <label class="form-label small fw-bold">{{ 'catalog.price' | translate }} (MAD)</label>
             <div class="d-flex gap-2">
-              <input type="number" class="form-control form-control-sm" placeholder="Min"
+              <input type="number" class="form-control form-control-sm"
+                     [placeholder]="'catalog.min' | translate"
                      [(ngModel)]="filters.minPrice" (ngModelChange)="onFilterChange()">
-              <input type="number" class="form-control form-control-sm" placeholder="Max"
+              <input type="number" class="form-control form-control-sm"
+                     [placeholder]="'catalog.max' | translate"
                      [(ngModel)]="filters.maxPrice" (ngModelChange)="onFilterChange()">
             </div>
           </div>
@@ -67,16 +71,16 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
           <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" id="inStock"
                    [(ngModel)]="filters.inStockOnly" (ngModelChange)="onFilterChange()">
-            <label class="form-check-label small" for="inStock">En stock uniquement</label>
+            <label class="form-check-label small" for="inStock">{{ 'catalog.in_stock_only' | translate }}</label>
           </div>
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="featured"
                    [(ngModel)]="filters.featuredOnly" (ngModelChange)="onFilterChange()">
-            <label class="form-check-label small" for="featured">Coup de cœur</label>
+            <label class="form-check-label small" for="featured">{{ 'catalog.featured_only' | translate }}</label>
           </div>
 
           <button class="btn btn-outline-secondary btn-sm w-100" (click)="resetFilters()">
-            <i class="bi bi-x-circle"></i> Réinitialiser
+            <i class="bi bi-x-circle"></i> {{ 'catalog.reset' | translate }}
           </button>
         </div>
       </div>
@@ -86,20 +90,20 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
     <section class="col-lg-9">
 
       <!-- Toolbar -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <span class="text-muted small">
           @if (page()) {
-            <strong>{{ page()!.totalCount }}</strong> produit(s)
+            <strong>{{ page()!.totalCount }}</strong> {{ 'catalog.products_count' | translate }}
           }
         </span>
         <div class="d-flex gap-2 align-items-center">
-          <label class="form-label small mb-0">Trier :</label>
+          <label class="form-label small mb-0">{{ 'catalog.sort_by' | translate }}</label>
           <select class="form-select form-select-sm" style="width:auto" [(ngModel)]="filters.sortBy" (ngModelChange)="onFilterChange()">
-            <option value="newest">Nouveautés</option>
-            <option value="price_asc">Prix croissant</option>
-            <option value="price_desc">Prix décroissant</option>
-            <option value="name_asc">Nom A-Z</option>
-            <option value="popular">Popularité</option>
+            <option value="newest">{{ 'catalog.sort_newest' | translate }}</option>
+            <option value="price_asc">{{ 'catalog.sort_price_asc' | translate }}</option>
+            <option value="price_desc">{{ 'catalog.sort_price_desc' | translate }}</option>
+            <option value="name_asc">{{ 'catalog.sort_name_asc' | translate }}</option>
+            <option value="popular">{{ 'catalog.sort_popular' | translate }}</option>
           </select>
         </div>
       </div>
@@ -108,7 +112,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
         <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
       } @else if (!page() || page()!.items.length === 0) {
         <div class="alert alert-info text-center">
-          <i class="bi bi-search me-2"></i>Aucun produit ne correspond à vos critères.
+          <i class="bi bi-search me-2"></i>{{ 'catalog.empty' | translate }}
         </div>
       } @else {
         <div class="row g-4">
@@ -124,7 +128,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                       <span class="badge bg-sale">-{{ discount(p) }}%</span>
                     }
                     @if (!p.isInStock) {
-                      <span class="badge bg-dark">Rupture</span>
+                      <span class="badge bg-dark">{{ 'product.out_of_stock' | translate }}</span>
                     }
                   </div>
                   <div class="product-quick">
@@ -132,7 +136,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
                             [disabled]="!p.isInStock"
                             (click)="addToCart(p)">
                       <i class="bi bi-bag-plus me-1"></i>
-                      @if (p.isInStock) { Ajouter } @else { Indisponible }
+                      @if (p.isInStock) { {{ 'catalog.add' | translate }} } @else { {{ 'catalog.unavailable' | translate }} }
                     </button>
                   </div>
                 </div>
@@ -189,6 +193,7 @@ export class CatalogComponent {
   private catalog = inject(CatalogService);
   private cart = inject(CartService);
   private toast = inject(ToastService);
+  private translate = inject(TranslateService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -294,6 +299,6 @@ export class CatalogComponent {
 
   addToCart(p: ProductListItem): void {
     this.cart.add(p);
-    this.toast.success(`${p.name} ajouté au panier`);
+    this.toast.success(`${p.name} ${this.translate.instant('cart.added')}`);
   }
 }
