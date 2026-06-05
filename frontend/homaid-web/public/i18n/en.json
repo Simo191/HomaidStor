@@ -257,7 +257,12 @@
     "email_password_required": "Email and password required.",
     "welcome_back_user": "Welcome {{name}}!",
     "oauth_not_configured": "{{provider}} login: configure OAuth in appsettings.",
-    "or_divider": "or"
+    "or_divider": "or",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "phone": "Phone",
+    "password_hint": "(min. 8 characters)",
+    "phone_placeholder": "+212 6 00 00 00 00"
   },
   "account": {
     "section_title": "My account",

@@ -257,7 +257,12 @@
     "email_password_required": "البريد الإلكتروني وكلمة المرور مطلوبان.",
     "welcome_back_user": "مرحباً {{name}}!",
     "oauth_not_configured": "تسجيل الدخول عبر {{provider}}: قم بتكوين OAuth في الإعدادات.",
-    "or_divider": "أو"
+    "or_divider": "أو",
+    "first_name": "الاسم الأول",
+    "last_name": "اللقب",
+    "phone": "الهاتف",
+    "password_hint": "(8 أحرف على الأقل)",
+    "phone_placeholder": "+212 6 00 00 00 00"
   },
   "account": {
     "section_title": "حسابي",
