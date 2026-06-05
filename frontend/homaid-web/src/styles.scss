@@ -3,6 +3,8 @@
 // Palette : rose poudré · rose gold · brun chocolat
 // ======================================================================
 
+@use "quill/dist/quill.snow.css";
+
 @use "bootstrap/scss/bootstrap" as * with (
   $primary:       #B88577,
   $secondary:     #3D2817,
