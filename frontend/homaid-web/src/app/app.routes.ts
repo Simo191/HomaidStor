@@ -16,6 +16,7 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./admin/dashboard.component').then(m => m.DashboardComponent), title: 'Admin · Dashboard' },
       { path: 'orders', loadComponent: () => import('./admin/orders-admin.component').then(m => m.OrdersAdminComponent), title: 'Admin · Commandes' },
+      { path: 'orders/board', loadComponent: () => import('./admin/orders-kanban.component').then(m => m.OrdersKanbanComponent), title: 'Admin · Kanban' },
       { path: 'orders/:id', loadComponent: () => import('./admin/order-detail-admin.component').then(m => m.OrderDetailAdminComponent), title: 'Admin · Commande' },
       { path: 'products', loadComponent: () => import('./admin/products-admin.component').then(m => m.ProductsAdminComponent), title: 'Admin · Produits' },
       { path: 'products/:id', loadComponent: () => import('./admin/product-form.component').then(m => m.ProductFormComponent), title: 'Admin · Produit' },

@@ -12,7 +12,17 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, MoneyPipe],
   template: `
-<h1 class="h3 mb-3">Commandes</h1>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="h3 mb-0">Commandes</h1>
+  <div class="d-flex gap-2">
+    <a routerLink="/admin/orders" class="btn btn-sm btn-primary">
+      <i class="bi bi-table"></i> Vue tableau
+    </a>
+    <a routerLink="/admin/orders/board" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-kanban"></i> Vue kanban
+    </a>
+  </div>
+</div>
 
 <div class="card mb-3">
   <div class="card-body">
