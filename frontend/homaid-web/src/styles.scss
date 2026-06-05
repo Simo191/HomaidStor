@@ -308,6 +308,44 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 .15rem rgba(184, 133, 119, .15);
 }
 
+// -- ngx-quill overrides (Velisse theme) --
+quill-editor {
+  display: block !important;
+  width: 100%;
+}
+.ql-toolbar.ql-snow {
+  background: #FAF7F4;
+  border-color: #EDE4DE !important;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.ql-container.ql-snow {
+  border-color: #EDE4DE !important;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: .92rem;
+  background: #fff;
+}
+.ql-editor { min-height: 180px; }
+.ql-editor.ql-blank::before {
+  font-style: italic;
+  color: #B4A095;
+}
+.rtl-editor .ql-editor {
+  direction: rtl;
+  text-align: right;
+}
+.ql-snow .ql-stroke { stroke: #3D2817; }
+.ql-snow .ql-fill { fill: #3D2817; }
+.ql-snow .ql-picker-label { color: #3D2817; }
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke { stroke: #B88577; }
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill { fill: #B88577; }
+.ql-snow.ql-toolbar button:hover .ql-picker-label,
+.ql-snow.ql-toolbar button.ql-active .ql-picker-label { color: #B88577; }
+
 // -- Quantity picker (custom, ne pas utiliser input-group qui wrappe avec max-width) --
 .qty-control {
   display: inline-flex; align-items: stretch;
