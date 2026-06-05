@@ -155,12 +155,7 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
       background:#FBE9E5; color:#B88577;
       padding:.25rem .65rem; border-radius:12px; font-weight:600; font-size:.85rem;
     }
-    .status-pill {
-      display:inline-block; padding:.25rem .6rem; border-radius:12px;
-      font-size:.72rem; font-weight:500; letter-spacing:.03em;
-    }
-    .pill-active { background:#E5F0E2; color:#2e5e2a; }
-    .pill-inactive { background:#EAEAEA; color:#555; }
+    /* Status pills come from global styles.scss */
 
     .empty-state { text-align:center; padding:3rem; color:#8B7068; }
     .empty-state i { color:#D5C2BB; }

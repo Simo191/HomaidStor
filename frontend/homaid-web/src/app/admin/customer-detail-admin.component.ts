@@ -193,14 +193,7 @@ import { OrderStatusLabelPipe, PaymentMethodLabelPipe } from '../shared/pipes/or
     .address-tile.is-default { border-color:#B88577; background:#FDF7F4; }
     .default-badge { position:absolute; top:.5rem; right:.5rem; background:#B88577; color:#fff; font-size:.65rem; padding:.15rem .5rem; border-radius:8px; }
 
-    .status-pill { display:inline-block; padding:.2rem .55rem; border-radius:12px; font-size:.72rem; font-weight:500; }
-    .pill-active { background:#E5F0E2; color:#2e5e2a; }
-    .pill-inactive { background:#EAEAEA; color:#555; }
-    .pill-pending { background:#FFF4E0; color:#8a5e1a; }
-    .pill-confirmed, .pill-shipped { background:#E0EFFE; color:#1a5e8a; }
-    .pill-preparing { background:#FCE4E0; color:#8a3e1a; }
-    .pill-delivered { background:#E5F0E2; color:#2e5e2a; }
-    .pill-cancelled { background:#EAEAEA; color:#555; }
+    /* Status pills now come from global styles.scss */
 
     .order-link { color:#B88577; font-family:monospace; text-decoration:none; }
     .order-link:hover { text-decoration:underline; }
@@ -251,7 +244,7 @@ export class CustomerDetailAdminComponent {
     return ({
       Pending: 'pill-pending', Confirmed: 'pill-confirmed', Preparing: 'pill-preparing',
       Shipped: 'pill-shipped', Delivered: 'pill-delivered',
-      Cancelled: 'pill-cancelled', Refunded: 'pill-cancelled'
+      Cancelled: 'pill-cancelled', Refunded: 'pill-refunded'
     } as Record<string, string>)[s] ?? 'pill-pending';
   }
 }

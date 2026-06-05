@@ -462,21 +462,7 @@ import { ChartCanvasComponent } from './shared/chart-canvas.component';
     }
     .btn-link-velisse:hover { color: #9C6E60; }
 
-    /* Status pill */
-    .status-pill {
-      display: inline-block;
-      padding: .25rem .6rem;
-      border-radius: 12px;
-      font-size: .72rem;
-      font-weight: 500;
-      letter-spacing: .03em;
-    }
-    .pill-pending { background: #FFF4E0; color: #8a5e1a; }
-    .pill-confirmed { background: #E0EFFE; color: #1a5e8a; }
-    .pill-preparing { background: #FCE4E0; color: #8a3e1a; }
-    .pill-shipped { background: #E0EFFE; color: #1a5e8a; }
-    .pill-delivered { background: #E5F0E2; color: #2e5e2a; }
-    .pill-cancelled { background: #EAEAEA; color: #555; }
+    /* Status pills now come from global styles.scss */
 
     /* Stock list */
     .stock-list { list-style: none; padding: 0; margin: 0; }
@@ -916,7 +902,7 @@ export class DashboardComponent {
       Pending: 'pill-pending', Confirmed: 'pill-confirmed',
       Preparing: 'pill-preparing', Shipped: 'pill-shipped',
       Delivered: 'pill-delivered', Cancelled: 'pill-cancelled',
-      Refunded: 'pill-cancelled'
+      Refunded: 'pill-refunded'
     } as Record<string, string>)[s] || 'pill-pending';
   }
 }
