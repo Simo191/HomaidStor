@@ -42,6 +42,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ICustomerAddressService, CustomerAddressService>();
+        services.AddScoped<ICustomerAdminService, CustomerAdminService>();
 
         services.AddScoped<IPublicCatalogService, PublicCatalogService>();
         services.AddScoped<ICategoryAdminService, CategoryAdminService>();

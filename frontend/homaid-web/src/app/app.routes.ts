@@ -23,6 +23,8 @@ export const routes: Routes = [
       { path: 'categories', loadComponent: () => import('./admin/categories-admin.component').then(m => m.CategoriesAdminComponent), title: 'Admin · Catégories' },
       { path: 'brands', loadComponent: () => import('./admin/brands-admin.component').then(m => m.BrandsAdminComponent), title: 'Admin · Marques' },
       { path: 'customers', loadComponent: () => import('./admin/customers-admin.component').then(m => m.CustomersAdminComponent), title: 'Admin · Clients' },
+      { path: 'customers/:id', loadComponent: () => import('./admin/customer-detail-admin.component').then(m => m.CustomerDetailAdminComponent), title: 'Admin · Client' },
+      { path: 'analytics', loadComponent: () => import('./admin/analytics.component').then(m => m.AnalyticsComponent), title: 'Admin · Analytics' },
       { path: 'notifications', loadComponent: () => import('./admin/notifications-admin.component').then(m => m.NotificationsAdminComponent), title: 'Admin · Notifications' }
     ]
   },

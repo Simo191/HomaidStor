@@ -46,6 +46,10 @@ import { AuthService } from '../core/services/auth.service';
           <span class="nav-badge">{{ unreadCount() }}</span>
         }
       </a>
+      <a routerLink="/admin/analytics" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-graph-up"></i>
+        @if (!collapsed()) { <span>Analytics</span> }
+      </a>
 
       @if (!collapsed()) {
         <div class="sidebar-section-label">Catalogue</div>
