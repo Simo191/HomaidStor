@@ -1,49 +1,45 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryTree, ProductListItem } from '../../core/models/catalog.models';
 import { CartService } from '../../core/services/cart.service';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ToastService } from '../../core/services/toast.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { HeroSliderComponent } from './hero-slider.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, HeroSliderComponent],
   template: `
-<!-- HERO -->
-<section class="hero-banner">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-7">
-        <div class="section-sub mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
-          Skincare · Beauty · Care
-        </div>
-        <h1 class="mb-3" style="color:var(--velisse-brown)">
-          La beauté<br>
-          <span style="color:var(--velisse-rose-gold); font-style:italic">venue de Corée</span>
-        </h1>
-        <p class="lead mb-4">Parapharmacie &amp; Korean skincare : une sélection raffinée pour révéler l'éclat naturel de votre peau.</p>
-        <div class="d-flex flex-wrap gap-3">
-          <a routerLink="/catalog" class="btn btn-dark btn-lg btn-uppercase">
-            Découvrir <i class="bi bi-arrow-right ms-2"></i>
-          </a>
-          <a [routerLink]="['/catalog']" [queryParams]="{ featured: 'true' }" class="btn btn-outline-dark btn-lg btn-uppercase">
-            Coup de cœur
-          </a>
-        </div>
-      </div>
-      <div class="col-md-5 d-none d-md-block text-center">
-        <div style="position:relative">
-          <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(184,133,119,.18) 0%, transparent 70%); border-radius:50%"></div>
-          <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80&fit=crop"
-               alt="Korean skincare" class="img-fluid" style="border-radius:8px; position:relative; max-height:440px; object-fit:cover">
+<!-- HERO SLIDER : 5 produits coup de cœur sélectionnés en admin -->
+@if (heroProducts().length > 0) {
+  <app-hero-slider [products]="heroProducts()"></app-hero-slider>
+} @else {
+  <!-- Fallback hero statique si aucun produit en vedette -->
+  <section class="hero-banner">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-7">
+          <div class="section-sub mb-2" style="color:var(--velisse-rose-gold); letter-spacing:.35em; font-size:.78rem; text-transform:uppercase; font-weight:500">
+            Skincare · Beauty · Care
+          </div>
+          <h1 class="mb-3" style="color:var(--velisse-brown)">
+            La beauté<br>
+            <span style="color:var(--velisse-rose-gold); font-style:italic">venue de Corée</span>
+          </h1>
+          <p class="lead mb-4">Parapharmacie &amp; Korean skincare : une sélection raffinée pour révéler l'éclat naturel de votre peau.</p>
+          <div class="d-flex flex-wrap gap-3">
+            <a routerLink="/catalog" class="btn btn-dark btn-lg btn-uppercase">
+              Découvrir <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+}
 
 <!-- USP BAR -->
 <section class="bg-light py-4 border-bottom">
@@ -183,6 +179,9 @@ export class HomeComponent {
   featured = signal<ProductListItem[]>([]);
   loadingCategories = signal(true);
   loadingFeatured = signal(true);
+
+  /** Les 5 premiers produits "Coup de cœur" pour le slider hero */
+  heroProducts = computed(() => this.featured().slice(0, 5));
 
   constructor() {
     this.catalog.getCategoryTree().subscribe({

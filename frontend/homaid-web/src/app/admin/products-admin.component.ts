@@ -18,6 +18,15 @@ import { MoneyPipe } from '../shared/pipes/money.pipe';
   <a routerLink="/admin/products/new" class="btn btn-primary"><i class="bi bi-plus"></i> Nouveau produit</a>
 </div>
 
+<div class="alert d-flex align-items-center" style="background:#FBE9E5; border:1px solid #F0DDD7; color:#3D2817">
+  <i class="bi bi-stars me-2" style="font-size:1.25rem; color:#B88577"></i>
+  <span>
+    💡 <strong>Astuce :</strong> Les produits avec
+    <span class="badge" style="background:#B88577; color:#fff">Coup de cœur</span>
+    apparaissent dans le <strong>slider d'accueil</strong> (5 premiers affichés en rotation).
+  </span>
+</div>
+
 <div class="card mb-3">
   <div class="card-body">
     <div class="row g-2">
